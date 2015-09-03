@@ -6,7 +6,7 @@ using namespace pxljm;
 using namespace i3d;
 
 
-Material::Material() {}
+Material::Material() { }
 
 
 Material::~Material() { }
@@ -47,11 +47,13 @@ void Material::bind(i3d::mat4d projectionMatrix, float zfar) {
 			}
 		};
 
+		addFragSubroutine("doRender", "material");
+
 		// diffuse
 		if (m_useDiffuseMap && m_diffuseMap) addFragSubroutine("getDiffuse", "diffuseFromTexture");
 		else addFragSubroutine("getDiffuse", "diffuseFromValue");
 
-		// diffuse
+		// normal
 		if (m_normalMap) addFragSubroutine("getNormal", "normalFromTexture");
 		else addFragSubroutine("getNormal", "normalFromValue");
 

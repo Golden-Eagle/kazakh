@@ -75,7 +75,6 @@ in VertexData {
 	vec2 uv;
 } f_in;
 
-#ifndef _DEPTH_ONLY_
 
 // (rgb) diffuse, (a) metalicity or (rgb) diffuse, (a) opacity
 // (rg) normal, (b) roughness, (a) specularity
@@ -83,14 +82,33 @@ in VertexData {
 layout(location = 0) out vec4 fDiffuse;
 layout(location = 1) out vec4 fNormalMaterials;
 
-#endif
 
+void writeDepth(float);
 
+subroutine void renderMode();
 subroutine vec3 diffuseFetch();
 subroutine vec4 normalFetch();
 
+subroutine uniform renderMode doRender;
 subroutine uniform diffuseFetch getDiffuse;
 subroutine uniform normalFetch getNormal;
+
+
+// Do Render
+//
+subroutine(renderMode) void depth_only() {
+	writeDepth(-f_in.pos.z);
+}
+
+subroutine(renderMode) void material() {
+	writeDepth(-f_in.pos.z);
+
+	vec4 n = uProjectionMatrix * getNormal();
+	n = faceforward(n, vec4(0.0, 0.0, 1.0, 0.0), n);
+	fDiffuse = vec4(getDiffuse(), uMetalicity);
+	fNormalMaterials = vec4(n.xy, uRoughness, uSpecular);
+}
+
 
 // Diffuse
 //
@@ -120,16 +138,7 @@ void writeDepth(float depth) {
 // Main
 //
 void main() {
-	writeDepth(-f_in.pos.z);
-
-	#ifndef _DEPTH_ONLY_
-
-	vec4 n = uProjectionMatrix * getNormal();
-	n = faceforward(n, vec4(0.0, 0.0, 1.0, 0.0), n);
-	fDiffuse = vec4(getDiffuse(), uMetalicity);
-	fNormalMaterials = vec4(n.xy, uRoughness, uSpecular);
-
-	#endif
+	doRender();
 }
 
 

@@ -109,11 +109,12 @@ namespace pxljm {
 			m_window_scene_sub = game->window()->subscribeEventDispatcher(m_scene->updateSystem().eventProxy());
 
 
-			// The CUBE!!!!!!!!!
+			// The ASTEROID!!!!!!!!!
 			m_player = std::make_shared<Entity>(i3d::vec3d(0, 2, 0));
 			// m_player->emplaceComponent<MeshDrawable>(
 			// 	assets::getMesh("cube"),
 			// 	assets::getMaterial("basic"));
+			m_player->emplaceComponent<RigidBody>(std::make_shared<SphereCollider>(1));
 			m_player->emplaceComponent<MeshDrawable>(
 				assets::getMesh("asteroid"),
 				assets::getMaterial("asteroid"));
@@ -123,14 +124,16 @@ namespace pxljm {
 
 			// Ground plane
 			m_ground = std::make_shared<Entity>(i3d::vec3d(0, 0, 0));
-			m_ground->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(i3d2bt(i3d::vec3d(100, 0.1, 100))));
+			m_ground->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(i3d2bt(i3d::vec3d(100, 0.1, 100))), 0);
 			m_ground->emplaceComponent<MeshDrawable>(
 				assets::getMesh("big_plane"),
 				assets::getMaterial("basic"));
 			m_scene->add(m_ground);
 
+
+
 			// FPS controller
-			m_camera = std::make_shared<Entity>(i3d::vec3d(0, 0, 5));
+			m_camera = std::make_shared<Entity>(i3d::vec3d(0, 1, 5));
 			m_camera->emplaceComponent<FPSController>();
 			m_cameraComponent = m_camera->emplaceComponent<PerspectiveCamera>();
 			m_scene->add(m_camera);
