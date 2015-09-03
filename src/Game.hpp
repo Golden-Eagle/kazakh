@@ -16,7 +16,6 @@
 #include "Renderer.hpp"
 #include "SimpleShader.hpp"
 #include "ComponentTest.hpp"
-#include "LevelLoader.hpp"
 #include "State.hpp"
 
 // Inclusions for compoenets

@@ -7,10 +7,6 @@ using namespace pxljm;
 using namespace i3d;
 
 
-
-
-
-
 void Camera::registerWith(Scene &s) { s.cameraSystem().registerCamera(this); }
 
 

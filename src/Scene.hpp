@@ -35,14 +35,12 @@ namespace pxljm {
 		DrawableSystem m_drawableSystem;
 		PhysicsSystem  m_physicsSystem;
 		LightSystem    m_lightSystem;
-		SoundSystem	   m_soundSystem;
+		// SoundSystem	   m_soundSystem;
 		CameraSystem   m_cameraSystem;
 		UIRenderSystem m_uiRenderSystem;
 
-		gecom::Window *m_window;
-
 	public:
-		Scene(gecom::Window *win);
+		Scene();
 		~Scene();
 
 		void update();
@@ -52,8 +50,8 @@ namespace pxljm {
 		DrawableSystem & drawableSystem();
 		PhysicsSystem & physicsSystem();
 		UpdateSystem & updateSystem();
-		SoundSystem & soundSystem();
 		LightSystem & lightSystem();
-		UIRenderSystem & uiRenderSystem();
+		// SoundSystem & soundSystem();
+		// UIRenderSystem & uiRenderSystem();
 	};
 }

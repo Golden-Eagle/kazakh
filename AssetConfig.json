@@ -1,78 +1,31 @@
 {
 	"meshes" : {
 		"cube" : "./res/meshes/cube.obj",
-		"asteroid" : "./res/meshes/asteroid.obj",
-		"ship" : "./res/meshes/ship.obj",
-		
-		"waypoint_entrance" : "./res/meshes/waypoint/entrance.obj",
-		"waypoint_entrance_slider" : "./res/meshes/waypoint/entrance-slider.obj",
-		"waypoint_ring" : "./res/meshes/waypoint/ring.obj",
-		"waypoint_rock" : "./res/meshes/waypoint/rock.obj",
-		"waypoint_rod" : "./res/meshes/waypoint/rod.obj",
-		"waypoint_slider" : "./res/meshes/waypoint/slider.obj"
+		"sphere" : "./res/meshes/sphere.obj",
+		"big_plane" : "./res/meshes/big_plane.obj",
+		"asteroid" : "./res/meshes/asteroid.obj"
 	},
 
 	"materials" : {
 		"basic" : {
-			"shader" : "mat_default",
-			"diffuse-map" : "asteroid-diffuse"
+			"shader" : "default_material",
+			"diffuse" : [0.5, 0.5, 0.5]
 		},
-		"ship": {
-			"shader": "mat_default",
-			"diffuse-map": "ship-diffuse"
-		},
-		"waypoint_entrance": {
-			"shader": "mat_default",
-			"diffuse-map": "waypoint_entrance-diffuse"
-		},
-		"waypoint_entrance_slider": {
-			"shader": "mat_default",
-			"diffuse-map": "waypoint_entrance_slider-diffuse"
-		},
-				"waypoint_ring": {
-			"shader": "mat_default",
-			"diffuse-map": "waypoint_ring-diffuse"
-		},
-				"waypoint_rock": {
-			"shader": "mat_default",
-			"diffuse-map": "waypoint_rock-diffuse"
-		},
-		"waypoint_rod": {
-			"shader": "mat_default",
-			"diffuse-map": "waypoint_rod-diffuse"
-		},
-		"waypoint_slider": {
-			"shader": "mat_default",
-			"diffuse-map": "waypoint_slider-diffuse"
+		"asteroid": {
+			"shader": "default_material",
+			"diffuse-map": "asteroid-diffuse",
+			"normal-map": "asteroid-normal"
 		}
 	},
 
 	"shaders" : {
 		"temp" : "./res/shaders/temp.glsl",
 		"physics_debug" : "./res/shaders/physics_debug.glsl",
-		"mat_default" : "./res/shaders/mat_default.glsl"
+		"default_material" : "./res/shaders/mat_default.glsl"
 	},
 
 	"images": {
 		"asteroid-diffuse" : "./res/images/asteroid-diffuse.jpg",
-		"asteroid-normal" : "./res/images/asteroid-normal.jpg",
-		"ship-diffuse" : "./res/images/ship-diffuse.jpg",
-		
-		"waypoint_entrance-diffuse" : "./res/images/waypoint/entrance-diffuse.jpg",
-		"waypoint_entrance_slider-diffuse" : "./res/images/waypoint/entrance-slider-diffuse.jpg",
-		"waypoint_ring-diffuse" : "./res/images/waypoint/ring-diffuse.jpg",
-		"waypoint_rock-diffuse" : "./res/images/waypoint/rock-diffuse.jpg",
-		"waypoint_rod-diffuse" : "./res/images/waypoint/rod-diffuse.jpg",
-		"waypoint_slider-diffuse" : "./res/images/waypoint/slider-diffuse.jpg",
-
-		"waypoint_entrance-specular" : "./res/images/waypoint/entrance-specular.jpg",
-		"waypoint_entrance-slider-specular" : "./res/images/waypoint/entrance-slider-specular.jpg",
-		"waypoint_ring-specular" : "./res/images/waypoint/ring-specular.jpg",
-		"waypoint_rod-specular" : "./res/images/waypoint/rod-specular.jpg",
-		"waypoint_slider-specular" : "./res/images/waypoint/slider-specular.jpg",
-
-		"waypoint_entrance-slider-normal" : "./res/images/waypoint/entrance-slider-normal.jpg",
-		"waypoint_ring-normal" : "./res/images/waypoint/ring-normal.jpg",
-		"waypoint_rock-normal" : "./res/images/waypoint/rock-normal.jpg"
+		"asteroid-normal" : "./res/images/asteroid-normal.jpg"
 	}
 }

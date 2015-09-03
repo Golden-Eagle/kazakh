@@ -67,6 +67,11 @@ namespace pxljm {
 
 		virtual void update(clock_t::time_point now, clock_t::time_point prev) = 0;
 		virtual std::chrono::duration<double> updateInterval();
+
+		static double timeDelta(clock_t::time_point a, clock_t::time_point b) {
+			using namespace std::chrono;
+			return duration_cast<duration<double>>(a - b).count();
+		}
 	};
 
 

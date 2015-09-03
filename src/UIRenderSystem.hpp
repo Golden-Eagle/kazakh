@@ -14,8 +14,10 @@ namespace pxljm {
 		float joyAx[16];
 
 		void draw() override {
-			ImVec4 clear_color = ImColor(114, 144, 154);
-			static float f = 0.0f;
+			// set but not used?!?!?
+			// ImVec4 clear_color = ImColor(114, 144, 154);
+			// static float f = 0.0f;
+
 			// ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5);
 			// ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.8, 0, 0, 0.5));
 			ImGui::Begin("Test Window");
@@ -41,6 +43,7 @@ namespace pxljm {
 	};
 
 	class UIRenderSystem : public ComponentSystem {
+	private:
 		static std::vector<UIRenderComponent* > g_components;
 		static int          g_shaderHandle, g_vertHandle, g_fragHandle;
 		static double       g_Time;
@@ -48,6 +51,7 @@ namespace pxljm {
 		static GLuint g_fontTexture;
 		static int          g_AttribLocationPosition, g_AttribLocationUV, g_AttribLocationColor;
 		static unsigned int g_VboHandle, g_VaoHandle, g_ElementsHandle;
+
 	public:
 		UIRenderSystem() {
 			ImGuiIO& io = ImGui::GetIO();

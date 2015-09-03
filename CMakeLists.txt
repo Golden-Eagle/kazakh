@@ -18,7 +18,7 @@ add_subdirectory("${PROJECT_SOURCE_DIR}/ext/gecom")
 add_subdirectory("${PROJECT_SOURCE_DIR}/ext/stb")
 
 # Fmod
-add_subdirectory("${PROJECT_SOURCE_DIR}/ext/fmod")
+# add_subdirectory("${PROJECT_SOURCE_DIR}/ext/fmod")
 
 # Imgui
 add_subdirectory("${PROJECT_SOURCE_DIR}/ext/imgui")
@@ -45,8 +45,8 @@ add_subdirectory(res)
 
 # set IDE display folders
 SET_PROPERTY(TARGET pxljm PROPERTY FOLDER "PXLJM")
-SET_PROPERTY(TARGET fmod_lowlevel PROPERTY FOLDER "FMOD")
-SET_PROPERTY(TARGET fmod_studio PROPERTY FOLDER "FMOD")
+# SET_PROPERTY(TARGET fmod_lowlevel PROPERTY FOLDER "FMOD")
+# SET_PROPERTY(TARGET fmod_studio PROPERTY FOLDER "FMOD")
 SET_PROPERTY(TARGET stb PROPERTY FOLDER "STB")
 
 

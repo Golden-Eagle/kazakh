@@ -3,66 +3,86 @@
 
 // fuck these spaces
 
+#include <chrono>
+
 #include "Pxljm.hpp"
 #include "Game.hpp"
-#include "Joystick.hpp"
+// #include "Joystick.hpp"
 #include <gecom/Window.hpp>
 
 namespace pxljm {
-	class PlayerControllable : public virtual InputUpdatable {
-		RigidBody* m_rigidBody = nullptr;
-		JoystickManager m_joystickManager;
-		std::shared_ptr<Joystick> m_joystick;
+
+	class FPSController : public InputUpdatable, public Updatable {
+	private:
+		i3d::vec3d m_movement;
+		gecom::subscription_ptr m_mb_sub;
+		gecom::point2d m_lastmouse;
+
+		double horzRot = 0;
+		double vertRot = 0;
 
 	public:
-		PlayerControllable() : m_joystickManager("input.json") {
-			m_joystick = m_joystickManager.findJoystick();
+		double speed = 5.0; // meters per second
+		double rotateSpeed = i3d::math::pi() / 300; // radians per pixel
+
+		FPSController() { }
+		~FPSController() { }
+
+		virtual void registerWith(Scene &s) override {
+			InputUpdatable::registerWith(s);
+			Updatable::registerWith(s);
+
+			m_mb_sub = s.updateSystem().eventProxy()->onMouseMove.subscribe([this](const gecom::mouse_event &e) {
+				if (e.window->getButton(GLFW_MOUSE_BUTTON_LEFT)) {
+					horzRot += (m_lastmouse.x - e.pos.x) * rotateSpeed;
+					vertRot += (m_lastmouse.y - e.pos.y) * rotateSpeed;
+					i3d::quatd rotx = i3d::quatd::axisangle(i3d::vec3d::i(), vertRot);
+					i3d::quatd roty = i3d::quatd::axisangle(i3d::vec3d::j(), horzRot);
+					entity()->root()->setLocalRotation(roty * rotx);
+				}
+				m_lastmouse = e.pos;
+				return false;
+			});
+
 		}
-		virtual void inputUpdate(gecom::WindowEventProxy &wep) override {
-			if(!m_rigidBody) {
-				m_rigidBody = entity()->getComponent<RigidBody>();
+
+		virtual void deregisterWith(Scene &s) override {
+			InputUpdatable::deregisterWith(s);
+			Updatable::deregisterWith(s);
+		}
+
+		virtual void inputUpdate(gecom::WindowEventProxy &win) override {
+			i3d::vec3d movement;
+
+			if (win.getKey(GLFW_KEY_W) || win.getKey(GLFW_KEY_UP))
+				movement -= i3d::vec3d::k();
+			if (win.getKey(GLFW_KEY_S) || win.getKey(GLFW_KEY_DOWN))
+				movement += i3d::vec3d::k();
+
+			if (win.getKey(GLFW_KEY_A) || win.getKey(GLFW_KEY_LEFT))
+				movement -= i3d::vec3d::i();
+			if (win.getKey(GLFW_KEY_D) || win.getKey(GLFW_KEY_RIGHT))
+				movement += i3d::vec3d::i();
+
+			if (win.getKey(GLFW_KEY_LEFT_SHIFT) || win.getKey(GLFW_KEY_RIGHT_SHIFT))
+				movement -= i3d::vec3d::j();
+			if (win.getKey(GLFW_KEY_SPACE))
+				movement += i3d::vec3d::j();
+
+			m_movement = movement;
+		}
+
+		virtual void update(clock_t::time_point now, clock_t::time_point prev) override {
+			double dt = timeDelta(now, prev);
+
+			if (m_movement.mag() > 0.1) {
+				m_movement = ~m_movement;
+				m_movement *= speed * dt;
+				i3d::vec3d deltapos = entity()->root()->getLocalRotation() * m_movement;
+				entity()->root()->setLocalPosition(entity()->root()->getLocalPosition() + deltapos);
 			}
-
-			float pitchInc = m_joystick->getButtonValue("pitchUp", wep);
-			float pitchDec = m_joystick->getButtonValue("pitchDown", wep);
-			float pitchDelta = pitchInc + pitchDec;
-
-			float rollInc = m_joystick->getButtonValue("rollLeft", wep);
-			float rollDec = m_joystick->getButtonValue("rollRight", wep);
-			float rollDelta = rollInc + rollDec;
-
-			float yawInc = m_joystick->getButtonValue("yawLeft", wep);
-			float yawDec = m_joystick->getButtonValue("yawRight", wep);
-			float yawDelta = yawInc + yawDec;
-
-			float pitch = m_joystick->getAxisValue("pitch") + pitchDelta;
-			float roll  = m_joystick->getAxisValue("roll") + rollDelta;
-			float yaw   = m_joystick->getAxisValue("yaw") + yawDelta;
-
-			auto up = entity()->root()->getRotation() * i3d::vec3d(pitch, yaw, roll);
-			m_rigidBody->applyTorqueImpulse(up);
-
-			float thrustInc = m_joystick->getButtonValue("thrustUp", wep);
-			float thrustDec = m_joystick->getButtonValue("thrustDown", wep);
-			float thrustDelta = thrustInc + thrustDec;
-
-			float thrust = m_joystick->getAxisValue("thrust") + thrustDelta;
-
-			auto facing = entity()->root()->getRotation() * i3d::vec3d(0, 0, thrust);
-			m_rigidBody->applyImpulse(facing);
 		}
 	};
-
-	class CameraControllable : public virtual InputUpdatable {
-		RigidBody* m_rigidBody;
-
-		virtual void inputUpdate(gecom::WindowEventProxy &wep) override {
-			if(!m_rigidBody) {
-				m_rigidBody = entity()->getComponent<RigidBody>();
-			}
-		}
-	};
-
 
 	class PlayState : public State < std::string > {
 		Renderer m_renderer;
@@ -77,40 +97,27 @@ namespace pxljm {
 
 	public:
 		PlayState(Game* game) : m_renderer(game->window()), m_game(game) {
-			m_scene = std::make_shared<Scene>(game->window());
+			m_scene = std::make_shared<Scene>();
 
-			LevelLoader ll;
-			ll.Load(m_scene, "sample.json");
 
+			//manually subscribe windw event proxy to window
 			m_window_scene_sub = game->window()->subscribeEventDispatcher(m_scene->updateSystem().eventProxy());
 
-			m_player = std::make_shared<Entity>(i3d::vec3d(0, 0, 20));
+
+			m_player = std::make_shared<Entity>(i3d::vec3d(0, 0, 0));
 			m_player->emplaceComponent<MeshDrawable>(
-				assets::getMesh("ship"),
-				assets::getMaterial("ship"));
-
-			gecom::Log::info() << "glfw says joy1 is: " << glfwJoystickPresent(GLFW_JOYSTICK_1);
-
-			m_player->emplaceComponent<RigidBody>(std::make_shared<SphereCollider>(20), 200);
-			m_player->getComponent<RigidBody>()->setDamping(0.1, 0.9);
-			m_player->emplaceComponent<PlayerControllable>();
-			m_player->emplaceComponent<PlayerScoreComponent>();
-			m_scene->uiRenderSystem().registerUiComponent(m_player->getComponent<PlayerScoreComponent>());
+				assets::getMesh("cube"),
+				assets::getMaterial("basic"));
 			m_scene->add(m_player);
 
-			m_camera = std::make_shared<Entity>(i3d::vec3d(0, 50, -100), i3d::quatd::axisangle(i3d::vec3d(0, 1, 0.02), 3.1415));
-			m_camera->emplaceComponent<PerspectiveCamera>();
-			m_camera->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(pxljm::i3d2bt(i3d::vec3d::zero())));
-			m_camera->emplaceComponent<CameraControllable>();
-			m_cameraComponent = m_camera->getComponent<PerspectiveCamera>();
-			m_cameraComponent->registerWith(*m_scene);
+
+			m_camera = std::make_shared<Entity>(i3d::vec3d(0, 0, 5));
+			m_camera->emplaceComponent<FPSController>();
+			m_cameraComponent = m_camera->emplaceComponent<PerspectiveCamera>();
+			m_scene->add(m_camera);
 			m_scene->cameraSystem().setCamera(m_cameraComponent);
 
-			m_scene->add(m_camera);
-			m_player->root()->addChild(m_camera->root());
 
-			// auto ui = make_shared<TestUIComponent>();
-			// m_scene->uiRenderSystem().registerUiComponent(ui);
 		}
 
 		virtual action_ptr updateForeground() override {

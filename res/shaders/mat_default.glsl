@@ -1,3 +1,8 @@
+/*
+ *
+ * Default shader program.
+ *
+ */
 
 // a   per-vertex attribute from application
 // u   uniform variable from application

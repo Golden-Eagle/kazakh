@@ -155,7 +155,7 @@ namespace pxljm {
 	}
 
 	void Renderer::renderScene(Scene &s) {
-		glClearColor(0.1f, 0.1f, 0.1f, 1.f); // default background color
+		glClearColor(0.9f, .9f, 0.9f, 1.f); // default background color
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
@@ -217,6 +217,6 @@ namespace pxljm {
 
 		s.physicsSystem().debugDraw(s);
 
-		s.uiRenderSystem().render(s, m_win->width(), m_win->height(), size.w, size.h);
+		// s.uiRenderSystem().render(s, m_win->width(), m_win->height(), size.w, size.h);
 	}
 }

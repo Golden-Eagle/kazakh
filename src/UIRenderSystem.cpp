@@ -182,7 +182,7 @@ namespace pxljm {
         glDisable(GL_BLEND);
     }
 
-    void UIRenderSystem::render(Scene&,int w, int h, int fw, int fh) {
+    void UIRenderSystem::render(Scene&, int w, int h, int fw, int fh) {
             if(!g_fontTexture)
                 createDeviceObjects();
 

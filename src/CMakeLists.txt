@@ -27,19 +27,15 @@ set(headers
 	"LightSystem.hpp"
 	"PhysicsSystem.hpp"
 	"UpdateSystem.hpp"
-	"SoundSystem.hpp"
-
-	"Image.hpp"
+	# "SoundSystem.hpp"
 
 	"Scene.hpp"
-
-	"LevelLoader.hpp"
 
 	"UIRenderSystem.hpp"
 
 	"State.hpp"
 	"PlayState.hpp"
-	"Joystick.hpp"
+	# "Joystick.hpp"
 )
 
 
@@ -60,7 +56,7 @@ set(sources
 	"LightSystem.cpp"
 	"PhysicsSystem.cpp"
 	"UpdateSystem.cpp"
-	"SoundSystem.cpp"
+	# "SoundSystem.cpp"
 	
 	"Scene.cpp"
 
@@ -74,5 +70,5 @@ target_link_libraries(pxljm PRIVATE gecom)
 
 target_link_libraries(pxljm PRIVATE BulletCollision BulletDynamics BulletSoftBody)
 
-target_link_libraries(pxljm PRIVATE fmod_lowlevel fmod_studio)
 target_link_libraries(pxljm PRIVATE stb imgui)
+# target_link_libraries(pxljm PRIVATE fmod_lowlevel fmod_studio)

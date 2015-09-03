@@ -9,7 +9,7 @@ using namespace gecom;
 using namespace i3d;
 using namespace std::chrono_literals;
 
-Scene::Scene(Window *win) : m_window(win) { }
+Scene::Scene() { }
 
 
 Scene::~Scene() { }
@@ -27,7 +27,7 @@ void Scene::update() {
 
 	// Sound
 	//
-	m_soundSystem.update();
+	// m_soundSystem.update();
 
 	// Update
 	//
@@ -57,10 +57,11 @@ PhysicsSystem & Scene::physicsSystem() { return m_physicsSystem; }
 UpdateSystem & Scene::updateSystem() { return m_updateSystem; }
 
 
-SoundSystem & Scene::soundSystem() { return m_soundSystem; }
-
-
 LightSystem & Scene::lightSystem() { return m_lightSystem; }
 
-UIRenderSystem & Scene::uiRenderSystem() { return m_uiRenderSystem; }
+
+// SoundSystem & Scene::soundSystem() { return m_soundSystem; }
+
+
+// UIRenderSystem & Scene::uiRenderSystem() { return m_uiRenderSystem; }
 
