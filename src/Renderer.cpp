@@ -215,6 +215,8 @@ namespace pxljm {
 
 		glUseProgram(0);
 
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LEQUAL);
 		s.physicsSystem().debugDraw(s);
 
 		// s.uiRenderSystem().render(s, m_win->width(), m_win->height(), size.w, size.h);

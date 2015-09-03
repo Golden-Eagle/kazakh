@@ -70,7 +70,7 @@ namespace pxljm {
 						}
 						else if (propTag == "normal-map") {
 							string textureTag = p.value();
-							m->setDiffuseMap(getTexture(textureTag));
+							m->setNormalMap(getTexture(textureTag));
 						}
 					}
 

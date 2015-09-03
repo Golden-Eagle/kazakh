@@ -239,7 +239,7 @@ namespace pxljm {
 		PhysicsDebugDrawer();
 		~PhysicsDebugDrawer() { };
 
-		virtual void draw(i3d::mat4d, i3d::mat4d);
+		virtual void draw(i3d::mat4d, i3d::mat4d, double);
 
 		virtual void drawLine (const btVector3 &, const btVector3 &, const btVector3 &);
 		virtual void drawLine (const btVector3 &, const btVector3 &, const btVector3 &, const btVector3 &);

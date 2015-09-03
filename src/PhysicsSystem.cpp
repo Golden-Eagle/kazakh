@@ -341,7 +341,7 @@ PhysicsDebugDrawer::PhysicsDebugDrawer() {
 }
 
 
-void PhysicsDebugDrawer::draw(mat4d view, mat4d proj) {
+void PhysicsDebugDrawer::draw(mat4d view, mat4d proj, double zfar) {
 	if (m_position.size() > 0) {
 		glBindVertexArray(m_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vbo_pos);
@@ -353,6 +353,7 @@ void PhysicsDebugDrawer::draw(mat4d view, mat4d proj) {
 		m_shader->bind();
 		glUniformMatrix4fv(m_shader->uniformLocation("uModelViewMatrix"), 1, true, i3d::mat4f(view));
 		glUniformMatrix4fv(m_shader->uniformLocation("uProjectionMatrix"), 1, true, i3d::mat4f(proj));
+		glUniform1f(m_shader->uniformLocation("uZFar"), zfar);
 
 		glDrawArrays(GL_LINES, 0, m_position.size());
 
@@ -563,10 +564,11 @@ PhysicsSystem::clock_t::time_point PhysicsSystem::lastTick() {
 }
 
 void PhysicsSystem::debugDraw(Scene &s) {
+	double zfar = s.cameraSystem().getPrimaryCamera()->getZfar();
 	mat4d view = s.cameraSystem().getPrimaryCamera()->getViewMatrix();
 	mat4d proj = s.cameraSystem().getPrimaryCamera()->getProjectionMatrix();
 	dynamicsWorld->debugDrawWorld();
-	m_debugDrawer.draw(view, proj);
+	m_debugDrawer.draw(view, proj, zfar);
 }
 
 

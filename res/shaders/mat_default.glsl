@@ -14,7 +14,7 @@
 
 uniform mat4 uProjectionMatrix;
 uniform mat4 uModelViewMatrix;
-uniform float uZFar;
+uniform float uZFar; //uZFar, uZfar, uZ_Far, uZ_far || zFar, zfar, z_far. z_Far
 
 
 uniform vec3 uDiffuse;
@@ -120,8 +120,7 @@ void writeDepth(float depth) {
 // Main
 //
 void main() {
-	vec4 p = uProjectionMatrix * vec4(f_in.pos, 1.0);
-	writeDepth(p.z/p.w);
+	writeDepth(-f_in.pos.z);
 
 	#ifndef _DEPTH_ONLY_
 
