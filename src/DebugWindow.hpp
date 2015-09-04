@@ -16,13 +16,13 @@ namespace pxljm {
 	};
 
 	class DebugWindowDrawable : public DebugDrawable {
+		friend DebugWindowManager;
 	public:
 		virtual std::string debugWindowTitle() = 0;
 
 		virtual ~DebugWindowDrawable();
 	private:
 		void drawWindow(bool *);
-		friend DebugWindowManager;
 	};
 
 
@@ -38,23 +38,24 @@ namespace pxljm {
 		// virtual void dispatchFramebufferSizeEvent(const framebuffer_size_event &);
 		// virtual void dispatchWindowFocusEvent(const window_focus_event &);
 		// virtual void dispatchWindowIconEvent(const window_icon_event &);
-		// virtual void dispatchMouseEvent(const mouse_event &);
-		virtual void dispatchMouseButtonEvent(const mouse_button_event &);
-		virtual void dispatchMouseScrollEvent(const mouse_scroll_event &);
-		virtual void dispatchKeyEvent(const key_event &);
-		virtual void dispatchCharEvent(const char_event &);
+		virtual void dispatchMouseEvent(const gecom::mouse_event &);
+		virtual void dispatchMouseButtonEvent(const gecom::mouse_button_event &);
+		virtual void dispatchMouseScrollEvent(const gecom::mouse_scroll_event &);
+		virtual void dispatchKeyEvent(const gecom::key_event &);
+		virtual void dispatchCharEvent(const gecom::char_event &);
 	};
 
 
 
 	class DebugWindowManager {
+		friend DebugEventDispatcher;
 	private:
 		static std::unordered_set<DebugWindowDrawable* > g_windows;
 
-		static double       g_Time;
-		static bool         g_MousePressed[3];
-		static float        g_MouseWheel;
-		static ImVec2       g_MousePosition;
+		//static double       g_Time;
+		//static bool         g_MousePressed[3];
+		//static float        g_MouseWheel;
+		//static ImVec2       g_MousePosition;
 		static GLuint       g_fontTexture;
 		static int          g_shaderHandle, g_vertHandle, g_fragHandle;
 		static int          g_AttribLocationTex, g_AttribLocationProjMtx;
@@ -64,7 +65,7 @@ namespace pxljm {
 		std::shared_ptr<DebugEventDispatcher> m_debug_wed = std::make_shared<DebugEventDispatcher>();
 
 	public:
-		DebugWindowManager(gecom::Window *);
+		DebugWindowManager();
 		~DebugWindowManager();
 
 		static void renderDrawLists(ImDrawData *);
@@ -75,6 +76,6 @@ namespace pxljm {
 		bool createDeviceObjects();
 
 		void draw(int w, int h, int fw, int fh);
-		gecom::WindowEventDispatcher * getEventDispatcher();
+		std::shared_ptr<gecom::WindowEventDispatcher> getEventDispatcher();
 	};
 }

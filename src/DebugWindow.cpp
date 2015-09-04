@@ -30,34 +30,38 @@ namespace pxljm {
 	// void DebugEventDispatcher::dispatchFramebufferSizeEvent(const framebuffer_size_event &);
 	// void DebugEventDispatcher::dispatchWindowFocusEvent(const window_focus_event &);
 	// void DebugEventDispatcher::dispatchWindowIconEvent(const window_icon_event &);
-	void DebugEventDispatcher::dispatchMouseEvent(const mouse_event &e) {
-		DebugWindowManager::g_MousePosition = ImVec2(float(e.pos.x), float(e.pos.x));
+
+	void DebugEventDispatcher::dispatchMouseEvent(const gecom::mouse_event &e) {
+		ImGuiIO& io = ImGui::GetIO();
+		io.MousePos = ImVec2(float(e.pos.x), float(e.pos.y));
 	}
 
 
-	void DebugEventDispatcher::dispatchMouseButtonEvent(const mouse_button_event &e) {
-		if (e.action == GLFW_PRESS && e.button >= 0 && e.button < 3)
-			DebugWindowManager::g_MousePressed[e.button] = true;
+	void DebugEventDispatcher::dispatchMouseButtonEvent(const gecom::mouse_button_event &e) {
+		ImGuiIO& io = ImGui::GetIO();
+		if (e.button >= 0 && e.button < 3)
+			io.MouseDown[e.button] = (e.action == GLFW_PRESS);
 	}
 
-	void DebugEventDispatcher::dispatchMouseScrollEvent(const mouse_scroll_event &e) {
-		DebugWindowManager::g_MouseWheel += float(e.offset); // Use fractional mouse wheel, 1.0 unit 5 lines.
+	void DebugEventDispatcher::dispatchMouseScrollEvent(const gecom::mouse_scroll_event &e) {
+		ImGuiIO& io = ImGui::GetIO();
+		io.MouseWheel += float(e.offset.h); // Use fractional mouse wheel, 1.0 unit 5 lines.
 	}
 
-	void DebugEventDispatcher::dispatchKeyEvent(const key_event &e) {
+	void DebugEventDispatcher::dispatchKeyEvent(const gecom::key_event &e) {
 		ImGuiIO& io = ImGui::GetIO();
 		if (e.action == GLFW_PRESS)
 			io.KeysDown[e.key] = true;
 		if (e.action == GLFW_RELEASE)
 			io.KeysDown[e.key] = false;
 
-		(void)mods; // Modifiers are not reliable across systems
+		//(void)mods; // Modifiers are not reliable across systems
 		io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
 		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
 		io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
 	}
 
-	void DebugEventDispatcher::dispatchCharEvent(const char_event &e) {
+	void DebugEventDispatcher::dispatchCharEvent(const gecom::char_event &e) {
 		ImGuiIO& io = ImGui::GetIO();
 		if (e.codepoint > 0 && e.codepoint < 0x10000)
 			io.AddInputCharacter((unsigned short)e.codepoint);
@@ -70,9 +74,9 @@ namespace pxljm {
 
 
 	std::unordered_set<DebugWindowDrawable *> DebugWindowManager::g_windows;
-	double       DebugWindowManager::g_Time = 0;
-	bool         DebugWindowManager::g_MousePressed = { false, false, false };
-	float        DebugWindowManager::g_MouseWheel = 0.0f;
+	//double       DebugWindowManager::g_Time = 0;
+	//bool         DebugWindowManager::g_MousePressed = { false, false, false };
+	//float        DebugWindowManager::g_MouseWheel = 0.0f;
 	GLuint       DebugWindowManager::g_fontTexture = 0;
 	int          DebugWindowManager::g_shaderHandle = 0, DebugWindowManager::g_vertHandle = 0, DebugWindowManager::g_fragHandle = 0;
 	int          DebugWindowManager::g_AttribLocationTex = 0, DebugWindowManager::g_AttribLocationProjMtx = 0;
@@ -80,10 +84,11 @@ namespace pxljm {
 	unsigned int DebugWindowManager::g_VboHandle = 0, DebugWindowManager::g_VaoHandle = 0, DebugWindowManager::g_ElementsHandle = 0;
 
 
-	DebugWindowManager::DebugWindowManager(gecom::Window *win) {
+	DebugWindowManager::DebugWindowManager() {
 		ImGuiIO& io = ImGui::GetIO();
 
-		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                 // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
+		// Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
+		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
 		io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
 		io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
 		io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
@@ -116,21 +121,21 @@ namespace pxljm {
 		if (g_ElementsHandle) glDeleteBuffers(1, &g_ElementsHandle);
 		g_VaoHandle = g_VboHandle = g_ElementsHandle = 0;
 
-		glDetachShader(g_ShaderHandle, g_VertHandle);
-		glDeleteShader(g_VertHandle);
-		g_VertHandle = 0;
+		glDetachShader(g_shaderHandle, g_vertHandle);
+		glDeleteShader(g_vertHandle);
+		g_vertHandle = 0;
 
-		glDetachShader(g_ShaderHandle, g_FragHandle);
-		glDeleteShader(g_FragHandle);
-		g_FragHandle = 0;
+		glDetachShader(g_shaderHandle, g_fragHandle);
+		glDeleteShader(g_fragHandle);
+		g_fragHandle = 0;
 
-		glDeleteProgram(g_ShaderHandle);
-		g_ShaderHandle = 0;
+		glDeleteProgram(g_shaderHandle);
+		g_shaderHandle = 0;
 
-		if (g_FontTexture) {
-			glDeleteTextures(1, &g_FontTexture);
+		if (g_fontTexture) {
+			glDeleteTextures(1, &g_fontTexture);
 			ImGui::GetIO().Fonts->TexID = 0;
-			g_FontTexture = 0;
+			g_fontTexture = 0;
 		}
 		ImGui::Shutdown();
 	}
@@ -329,24 +334,24 @@ namespace pxljm {
 		io.DisplaySize = ImVec2((float)w, (float)h);
 		io.DisplayFramebufferScale = ImVec2((float)fw / w, (float)fh / h);
 
-		// Setup time step
-		double current_time =  glfwGetTime();
-		io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f/60.0f);
-		g_Time = current_time;
+		//// Setup time step
+		//double current_time =  glfwGetTime();
+		//io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f/60.0f);
+		//g_Time = current_time;
 
 
-		// Setup inputs
-		// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
-		// Mouse position in screen coordinates (TODO SHOULD be set to -1,-1 if no mouse / on another screen, etc.)
-		io.MousePos = DebugWindowManager::g_MousePosition;
+		//// Setup inputs
+		//// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
+		//// Mouse position in screen coordinates (TODO SHOULD be set to -1,-1 if no mouse / on another screen, etc.)
+		//io.MousePos = DebugWindowManager::g_MousePosition;
 
-		for (int i = 0; i < 3; i++) {
-			io.MouseDown[i] = g_MousePressed[i];
-			g_MousePressed[i] = false;
-		}
+		//for (int i = 0; i < 3; i++) {
+		//	io.MouseDown[i] = g_MousePressed[i];
+		//	g_MousePressed[i] = false;
+		//}
 
-		io.MouseWheel = g_MouseWheel;
-		g_MouseWheel = 0.0f;
+		//io.MouseWheel = g_MouseWheel;
+		//g_MouseWheel = 0.0f;
 
 
 		ImGui::NewFrame();
@@ -364,7 +369,7 @@ namespace pxljm {
 		ImGui::Render();
 	}
 
-	gecom::WindowEventDispatcher * DebugWindowManager::getEventDispatcher() {
-		return &m_debug_wed;
+	std::shared_ptr<gecom::WindowEventDispatcher> DebugWindowManager::getEventDispatcher() {
+		return m_debug_wed;
 	}
 }
