@@ -8,6 +8,7 @@ set(headers
 	"json.hpp"
 
 	"Game.hpp"
+	"DebugWindow.hpp"
 	"Renderer.hpp"
 	"ComponentTest.hpp"
 	"Collider.hpp"
@@ -28,10 +29,7 @@ set(headers
 	"PhysicsSystem.hpp"
 	"UpdateSystem.hpp"
 	# "SoundSystem.hpp"
-
 	"Scene.hpp"
-
-	"UIRenderSystem.hpp"
 
 	"State.hpp"
 	"PlayState.hpp"
@@ -42,6 +40,7 @@ set(headers
 # list sources here
 set(sources
 	"main.cpp"
+	"DebugWindow.cpp"
 	"Renderer.cpp"
 	
 	"Assets.cpp"
@@ -57,10 +56,7 @@ set(sources
 	"PhysicsSystem.cpp"
 	"UpdateSystem.cpp"
 	# "SoundSystem.cpp"
-	
 	"Scene.cpp"
-
-	"UIRenderSystem.cpp"
 )
 
 

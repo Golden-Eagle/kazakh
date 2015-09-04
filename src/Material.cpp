@@ -53,6 +53,13 @@ void Material::bind(i3d::mat4d projectionMatrix, float zfar) {
 		if (m_useDiffuseMap && m_diffuseMap) addFragSubroutine("getDiffuse", "diffuseFromTexture");
 		else addFragSubroutine("getDiffuse", "diffuseFromValue");
 
+		// metalicity
+		addFragSubroutine("getMetalicity", "metalicityFromValue");
+		// roughness
+		addFragSubroutine("getRoughness", "roughnessFromValue");
+		// specular
+		addFragSubroutine("getSpecular", "specularFromValue");
+
 		// normal
 		if (m_normalMap) addFragSubroutine("getNormal", "normalFromTexture");
 		else addFragSubroutine("getNormal", "normalFromValue");

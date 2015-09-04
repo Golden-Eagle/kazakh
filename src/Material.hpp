@@ -34,7 +34,7 @@ namespace pxljm {
 		float m_metalicity = 0;
 		float m_roughness = 0;
 		float m_specular = 0;
-		
+
 		texture_ptr m_normalMap;
 
 

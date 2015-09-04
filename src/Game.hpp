@@ -28,9 +28,10 @@ namespace pxljm {
 	class Game {
 	private:
 		StateManager m_stateManager;
+		DebugWindowManager m_debugManager;
 	public:
 		Game() {
-			m_win = gecom::createWindow().size(1024, 768).hint(GLFW_SAMPLES, 16).title("Pxljm 2015").visible(true).contextVersion(4, 1);
+			m_win = gecom::createWindow().size(1024, 768).hint(GLFW_SAMPLES, 16).title("Kazakh 2015").visible(true).contextVersion(4, 1);
 			m_win->makeCurrent();
 
 
@@ -69,12 +70,15 @@ namespace pxljm {
 				m_stateManager.update();
 				m_stateManager.draw();
 
+				//debug draw here
+				m_debugManager.draw(m_win->width(), m_win->height(), m_win->width(), m_win->height());
+
 				m_win->swapBuffers();
 
 				if (now - lastFPSTime > 1) {
 					char fpsString[200];
 					sprintf(
-						fpsString, "Pxljm 2015 [%d FPS @%dx%d]",
+						fpsString, "Kazakh 2015 [%d FPS @%dx%d]",
 						fps, m_win->width(), m_win->height());
 					m_win->title(fpsString);
 					fps = 0;

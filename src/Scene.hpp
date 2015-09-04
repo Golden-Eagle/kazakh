@@ -19,7 +19,8 @@
 #include "PhysicsSystem.hpp"
 #include "UpdateSystem.hpp"
 #include "SoundSystem.hpp"
-#include "UIRenderSystem.hpp"
+
+#include "DebugWindow.hpp"
 
 namespace pxljm {
 
@@ -27,7 +28,7 @@ namespace pxljm {
 	using scene_ptr = std::shared_ptr<Scene>;
 
 	//Colection of entities
-	class Scene : public std::enable_shared_from_this<Scene> {
+	class Scene : public std::enable_shared_from_this<Scene>, public DebugWindowDrawable {
 	private:
 		std::vector<entity_ptr> m_entities;
 
@@ -37,7 +38,6 @@ namespace pxljm {
 		LightSystem    m_lightSystem;
 		// SoundSystem	   m_soundSystem;
 		CameraSystem   m_cameraSystem;
-		UIRenderSystem m_uiRenderSystem;
 
 	public:
 		Scene();
@@ -46,12 +46,14 @@ namespace pxljm {
 		void update();
 		void add( entity_ptr e);
 
+		virtual void debugDraw();
+		virtual std::string debugWindowTitle();
+
 		CameraSystem & cameraSystem();
 		DrawableSystem & drawableSystem();
 		PhysicsSystem & physicsSystem();
 		UpdateSystem & updateSystem();
 		LightSystem & lightSystem();
 		// SoundSystem & soundSystem();
-		// UIRenderSystem & uiRenderSystem();
 	};
 }

@@ -4,7 +4,10 @@
 
 #include <gecom/Uncopyable.hpp>
 
+#include "imgui.h"
+
 #include "Pxljm.hpp"
+#include "DebugWindow.hpp"
 
 
 namespace pxljm {
@@ -19,6 +22,8 @@ namespace pxljm {
 		virtual void start() { }
 		virtual void registerWith(Scene &) = 0;
 		virtual void deregisterWith(Scene &) = 0;
+
+		virtual void debugDraw() { }; //TODO make pure virtual
 
 		std::weak_ptr<Entity> m_entity;
 		friend class Entity;

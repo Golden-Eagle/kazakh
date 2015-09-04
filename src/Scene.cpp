@@ -45,6 +45,16 @@ void Scene::add( entity_ptr e){
 }
 
 
+void Scene::debugDraw() {
+	ImGui::Text("Hello World");
+}
+
+
+string Scene::debugWindowTitle() {
+	return "Scene";
+}
+
+
 CameraSystem & Scene::cameraSystem() { return m_cameraSystem; }
 
 
@@ -62,6 +72,4 @@ LightSystem & Scene::lightSystem() { return m_lightSystem; }
 
 // SoundSystem & Scene::soundSystem() { return m_soundSystem; }
 
-
-// UIRenderSystem & Scene::uiRenderSystem() { return m_uiRenderSystem; }
 

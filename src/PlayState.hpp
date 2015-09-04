@@ -139,6 +139,8 @@ namespace pxljm {
 			m_scene->add(m_camera);
 			m_scene->cameraSystem().setCamera(m_cameraComponent);
 
+			DebugWindowManager::registerDebugWindowDrawable(m_scene.get());
+
 
 		}
 

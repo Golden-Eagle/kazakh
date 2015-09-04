@@ -23,6 +23,9 @@ uniform float uRoughness;
 uniform float uSpecular;
 
 uniform sampler2D uDiffuseMap;
+uniform sampler2D uMetalicityMap;
+uniform sampler2D uRoughnessMap;
+uniform sampler2D uSpecularMap;
 uniform sampler2D uNormalMap;
 
 
@@ -87,10 +90,17 @@ void writeDepth(float);
 
 subroutine void renderMode();
 subroutine vec3 diffuseFetch();
+subroutine float metalicityFetch();
+subroutine float roughnessFetch();
+subroutine float specularFetch();
 subroutine vec4 normalFetch();
 
 subroutine uniform renderMode doRender;
+
 subroutine uniform diffuseFetch getDiffuse;
+subroutine uniform metalicityFetch getMetalicity;
+subroutine uniform roughnessFetch getRoughness;
+subroutine uniform specularFetch getSpecular;
 subroutine uniform normalFetch getNormal;
 
 
@@ -105,8 +115,8 @@ subroutine(renderMode) void material() {
 
 	vec4 n = uProjectionMatrix * getNormal();
 	n = faceforward(n, vec4(0.0, 0.0, 1.0, 0.0), n);
-	fDiffuse = vec4(getDiffuse(), uMetalicity);
-	fNormalMaterials = vec4(n.xy, uRoughness, uSpecular);
+	fDiffuse = vec4(getDiffuse(), getMetalicity());
+	fNormalMaterials = vec4(n.xy, getRoughness(), getSpecular());
 }
 
 
@@ -114,6 +124,21 @@ subroutine(renderMode) void material() {
 //
 subroutine(diffuseFetch) vec3 diffuseFromTexture() { return texture(uDiffuseMap, f_in.uv).rgb; }
 subroutine(diffuseFetch) vec3 diffuseFromValue() { return uDiffuse; }
+
+// Metalicity
+//
+subroutine(metalicityFetch) float metalicityFromTexture() { return texture(uMetalicityMap, f_in.uv).r; }
+subroutine(metalicityFetch) float metalicityFromValue() { return uMetalicity; }
+
+// Roughness
+//
+subroutine(roughnessFetch) float roughnessFromTexture() { return texture(uRoughnessMap, f_in.uv).r; }
+subroutine(roughnessFetch) float roughnessFromValue() { return uRoughness; }
+
+// Specular
+//
+subroutine(specularFetch) float specularFromTexture() { return texture(uSpecularMap, f_in.uv).r; }
+subroutine(specularFetch) float specularFromValue() { return uSpecular; }
 
 // Normal
 //
