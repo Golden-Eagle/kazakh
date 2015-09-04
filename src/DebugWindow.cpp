@@ -34,7 +34,72 @@ namespace pxljm {
 
 	DebugWindowManager::DebugWindowManager() {
 		ImGuiIO& io = ImGui::GetIO();
+
+		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                 // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
+		io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
+		io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
+		io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
+		io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
+		io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
+		io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
+		io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
+		io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
+		io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
+		io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
+		io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
+		io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
+		io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
+		io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
+		io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
+		io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
+		io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
+		io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
+
 		io.RenderDrawListsFn = renderDrawLists;
+		// io.SetClipboardTextFn = ImGui_ImplGlfwGL3_SetClipboardText;
+		// io.GetClipboardTextFn = ImGui_ImplGlfwGL3_GetClipboardText;
+		#ifdef _WIN32
+			io.ImeWindowHandle = glfwGetWin32Window(g_Window);
+		#endif
+
+		
+		//glfwSetMouseButtonCallback
+		m_mousebutton_sub = s.updateSystem().eventProxy()->onMouseButton.subscribe([this](const gecom::mouse_button_event &e) {
+			if (e.action == GLFW_PRESS && e.button >= 0 && e.button < 3)
+				g_MousePressed[e.button] = true;
+			return true;
+		});
+
+
+		//glfwSetScrollCallback
+		m_scroll_sub = s.updateSystem().eventProxy()->onMouseScroll.subscribe([this](const gecom::mouse_scroll_event &e) {
+			g_MouseWheel += float(e.offset); // Use fractional mouse wheel, 1.0 unit 5 lines.
+			return true;
+		});
+
+
+		//glfwSetKeyCallback
+		m_key_sub = s.updateSystem().eventProxy()->onKey.subscribe([this](const gecom::key_event &e) {
+			ImGuiIO& io = ImGui::GetIO();
+			if (e.action == GLFW_PRESS) io.KeysDown[e.key] = true;
+			if (e.action == GLFW_RELEASE) io.KeysDown[e.key] = false;
+
+			(void)mods; // Modifiers are not reliable across systems
+			io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+			io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
+			io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+			return true;
+		});
+
+
+		//glfwSetCharCallback
+		m_char_sub = s.updateSystem().eventProxy()->onChar.subscribe([this](const gecom::char_event &e) {
+			ImGuiIO& io = ImGui::GetIO();
+			if (c > 0 && c < 0x10000) io.AddInputCharacter((unsigned short)c);
+			return true;
+		});
+
+
 	}
 
 

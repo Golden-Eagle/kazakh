@@ -39,6 +39,11 @@ namespace pxljm {
 
 		std::shared_ptr<gecom::WindowEventProxy> m_wep = std::make_shared<gecom::WindowEventProxy>();
 
+		gecom::subscription_ptr m_mousebutton_sub;
+		gecom::subscription_ptr m_scroll_sub;
+		gecom::subscription_ptr m_key_sub;
+		gecom::subscription_ptr m_char_sub;
+
 	public:
 		DebugWindowManager();
 
