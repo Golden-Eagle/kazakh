@@ -75,5 +75,6 @@ namespace pxljm {
 		bool createDeviceObjects();
 
 		void draw(int w, int h, int fw, int fh);
+		gecom::WindowEventDispatcher * getEventDispatcher();
 	};
 }

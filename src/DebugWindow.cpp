@@ -321,46 +321,50 @@ namespace pxljm {
 
 
 	void DebugWindowManager::draw(int w, int h, int fw, int fh) {
-			if(!g_fontTexture)
-				createDeviceObjects();
+		if(!g_fontTexture)
+			createDeviceObjects();
 
-			// Setup display size (every frame to accommodate for window resizing)
-			ImGuiIO& io = ImGui::GetIO();
-			io.DisplaySize = ImVec2((float)w, (float)h);
-			io.DisplayFramebufferScale = ImVec2((float)fw / w, (float)fh / h);
+		// Setup display size (every frame to accommodate for window resizing)
+		ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImVec2((float)w, (float)h);
+		io.DisplayFramebufferScale = ImVec2((float)fw / w, (float)fh / h);
 
-			// Setup time step
-			double current_time =  glfwGetTime();
-			io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f/60.0f);
-			g_Time = current_time;
-
-
-			// Setup inputs
-			// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
-			// Mouse position in screen coordinates (TODO SHOULD be set to -1,-1 if no mouse / on another screen, etc.)
-			io.MousePos = DebugWindowManager::g_MousePosition;
-
-			for (int i = 0; i < 3; i++) {
-				io.MouseDown[i] = g_MousePressed[i];
-				g_MousePressed[i] = false;
-			}
-
-			io.MouseWheel = g_MouseWheel;
-			g_MouseWheel = 0.0f;
+		// Setup time step
+		double current_time =  glfwGetTime();
+		io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f/60.0f);
+		g_Time = current_time;
 
 
-			ImGui::NewFrame();
+		// Setup inputs
+		// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
+		// Mouse position in screen coordinates (TODO SHOULD be set to -1,-1 if no mouse / on another screen, etc.)
+		io.MousePos = DebugWindowManager::g_MousePosition;
 
-			for (auto it = g_windows.begin(); it != g_windows.end();) {
-				bool openWindow = true;
-				(*it)->drawWindow(&openWindow);
-				if (!openWindow) {
-					it = g_windows.erase(it);
-				} else {
-					it++;
-				}
-			}
-
-			ImGui::Render();
+		for (int i = 0; i < 3; i++) {
+			io.MouseDown[i] = g_MousePressed[i];
+			g_MousePressed[i] = false;
 		}
+
+		io.MouseWheel = g_MouseWheel;
+		g_MouseWheel = 0.0f;
+
+
+		ImGui::NewFrame();
+
+		for (auto it = g_windows.begin(); it != g_windows.end();) {
+			bool openWindow = true;
+			(*it)->drawWindow(&openWindow);
+			if (!openWindow) {
+				it = g_windows.erase(it);
+			} else {
+				it++;
+			}
+		}
+
+		ImGui::Render();
+	}
+
+	gecom::WindowEventDispatcher * DebugWindowManager::getEventDispatcher() {
+		return &m_debug_wed;
+	}
 }

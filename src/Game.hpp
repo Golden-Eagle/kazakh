@@ -29,6 +29,7 @@ namespace pxljm {
 	private:
 		StateManager m_stateManager;
 		DebugWindowManager m_debugManager;
+		gecom::subscription_ptr m_debugManager_sub;
 	public:
 		Game() {
 			m_win = gecom::createWindow().size(1024, 768).hint(GLFW_SAMPLES, 16).title("Kazakh 2015").visible(true).contextVersion(4, 1);
@@ -41,6 +42,8 @@ namespace pxljm {
 
 				return false;
 			})->forever();
+
+			m_debugManager_sub = m_win->subscribeEventDispatcher(m_debugManager.getEventDispatcher());
 
 			assets::init("./AssetConfig.json");
 
