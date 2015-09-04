@@ -23,16 +23,64 @@ namespace pxljm {
 
 
 
+	// void DebugEventDispatcher::dispatchWindowRefreshEvent(const window_refresh_event &);
+	// void DebugEventDispatcher::dispatchWindowCloseEvent(const window_close_event &);
+	// void DebugEventDispatcher::dispatchWindowPosEvent(const window_pos_event &);
+	// void DebugEventDispatcher::dispatchWindowSizeEvent(const window_size_event &);
+	// void DebugEventDispatcher::dispatchFramebufferSizeEvent(const framebuffer_size_event &);
+	// void DebugEventDispatcher::dispatchWindowFocusEvent(const window_focus_event &);
+	// void DebugEventDispatcher::dispatchWindowIconEvent(const window_icon_event &);
+	void DebugEventDispatcher::dispatchMouseEvent(const mouse_event &e) {
+		DebugWindowManager::g_MousePosition = ImVec2(float(e.pos.x), float(e.pos.x));
+	}
+
+
+	void DebugEventDispatcher::dispatchMouseButtonEvent(const mouse_button_event &e) {
+		if (e.action == GLFW_PRESS && e.button >= 0 && e.button < 3)
+			DebugWindowManager::g_MousePressed[e.button] = true;
+	}
+
+	void DebugEventDispatcher::dispatchMouseScrollEvent(const mouse_scroll_event &e) {
+		DebugWindowManager::g_MouseWheel += float(e.offset); // Use fractional mouse wheel, 1.0 unit 5 lines.
+	}
+
+	void DebugEventDispatcher::dispatchKeyEvent(const key_event &e) {
+		ImGuiIO& io = ImGui::GetIO();
+		if (e.action == GLFW_PRESS)
+			io.KeysDown[e.key] = true;
+		if (e.action == GLFW_RELEASE)
+			io.KeysDown[e.key] = false;
+
+		(void)mods; // Modifiers are not reliable across systems
+		io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
+		io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+	}
+
+	void DebugEventDispatcher::dispatchCharEvent(const char_event &e) {
+		ImGuiIO& io = ImGui::GetIO();
+		if (e.codepoint > 0 && e.codepoint < 0x10000)
+			io.AddInputCharacter((unsigned short)e.codepoint);
+	}
+
+
+
+
+
+
+
 	std::unordered_set<DebugWindowDrawable *> DebugWindowManager::g_windows;
-	int          DebugWindowManager::g_shaderHandle = 0, DebugWindowManager::g_vertHandle = 0, DebugWindowManager::g_fragHandle = 0;
 	double       DebugWindowManager::g_Time = 0;
-	int          DebugWindowManager::g_AttribLocationTex = 0, DebugWindowManager::g_AttribLocationProjMtx = 0;
+	bool         DebugWindowManager::g_MousePressed = { false, false, false };
+	float        DebugWindowManager::g_MouseWheel = 0.0f;
 	GLuint       DebugWindowManager::g_fontTexture = 0;
+	int          DebugWindowManager::g_shaderHandle = 0, DebugWindowManager::g_vertHandle = 0, DebugWindowManager::g_fragHandle = 0;
+	int          DebugWindowManager::g_AttribLocationTex = 0, DebugWindowManager::g_AttribLocationProjMtx = 0;
 	int          DebugWindowManager::g_AttribLocationPosition = 0, DebugWindowManager::g_AttribLocationUV = 0, DebugWindowManager::g_AttribLocationColor = 0;
 	unsigned int DebugWindowManager::g_VboHandle = 0, DebugWindowManager::g_VaoHandle = 0, DebugWindowManager::g_ElementsHandle = 0;
 
 
-	DebugWindowManager::DebugWindowManager() {
+	DebugWindowManager::DebugWindowManager(gecom::Window *win) {
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                 // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
@@ -58,48 +106,33 @@ namespace pxljm {
 		io.RenderDrawListsFn = renderDrawLists;
 		// io.SetClipboardTextFn = ImGui_ImplGlfwGL3_SetClipboardText;
 		// io.GetClipboardTextFn = ImGui_ImplGlfwGL3_GetClipboardText;
-		#ifdef _WIN32
-			io.ImeWindowHandle = glfwGetWin32Window(g_Window);
-		#endif
-
 		
-		//glfwSetMouseButtonCallback
-		m_mousebutton_sub = s.updateSystem().eventProxy()->onMouseButton.subscribe([this](const gecom::mouse_button_event &e) {
-			if (e.action == GLFW_PRESS && e.button >= 0 && e.button < 3)
-				g_MousePressed[e.button] = true;
-			return true;
-		});
+		//TODO setup WED
+	}
 
+	DebugWindowManager::~DebugWindowManager(){
+		if (g_VaoHandle) glDeleteVertexArrays(1, &g_VaoHandle);
+		if (g_VboHandle) glDeleteBuffers(1, &g_VboHandle);
+		if (g_ElementsHandle) glDeleteBuffers(1, &g_ElementsHandle);
+		g_VaoHandle = g_VboHandle = g_ElementsHandle = 0;
 
-		//glfwSetScrollCallback
-		m_scroll_sub = s.updateSystem().eventProxy()->onMouseScroll.subscribe([this](const gecom::mouse_scroll_event &e) {
-			g_MouseWheel += float(e.offset); // Use fractional mouse wheel, 1.0 unit 5 lines.
-			return true;
-		});
+		glDetachShader(g_ShaderHandle, g_VertHandle);
+		glDeleteShader(g_VertHandle);
+		g_VertHandle = 0;
 
+		glDetachShader(g_ShaderHandle, g_FragHandle);
+		glDeleteShader(g_FragHandle);
+		g_FragHandle = 0;
 
-		//glfwSetKeyCallback
-		m_key_sub = s.updateSystem().eventProxy()->onKey.subscribe([this](const gecom::key_event &e) {
-			ImGuiIO& io = ImGui::GetIO();
-			if (e.action == GLFW_PRESS) io.KeysDown[e.key] = true;
-			if (e.action == GLFW_RELEASE) io.KeysDown[e.key] = false;
+		glDeleteProgram(g_ShaderHandle);
+		g_ShaderHandle = 0;
 
-			(void)mods; // Modifiers are not reliable across systems
-			io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-			io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-			io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-			return true;
-		});
-
-
-		//glfwSetCharCallback
-		m_char_sub = s.updateSystem().eventProxy()->onChar.subscribe([this](const gecom::char_event &e) {
-			ImGuiIO& io = ImGui::GetIO();
-			if (c > 0 && c < 0x10000) io.AddInputCharacter((unsigned short)c);
-			return true;
-		});
-
-
+		if (g_FontTexture) {
+			glDeleteTextures(1, &g_FontTexture);
+			ImGui::GetIO().Fonts->TexID = 0;
+			g_FontTexture = 0;
+		}
+		ImGui::Shutdown();
 	}
 
 
@@ -291,19 +324,32 @@ namespace pxljm {
 			if(!g_fontTexture)
 				createDeviceObjects();
 
+			// Setup display size (every frame to accommodate for window resizing)
 			ImGuiIO& io = ImGui::GetIO();
 			io.DisplaySize = ImVec2((float)w, (float)h);
 			io.DisplayFramebufferScale = ImVec2((float)fw / w, (float)fh / h);
 
+			// Setup time step
 			double current_time =  glfwGetTime();
 			io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f/60.0f);
 			g_Time = current_time;
 
+
+			// Setup inputs
+			// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
+			// Mouse position in screen coordinates (TODO SHOULD be set to -1,-1 if no mouse / on another screen, etc.)
+			io.MousePos = DebugWindowManager::g_MousePosition;
+
+			for (int i = 0; i < 3; i++) {
+				io.MouseDown[i] = g_MousePressed[i];
+				g_MousePressed[i] = false;
+			}
+
+			io.MouseWheel = g_MouseWheel;
+			g_MouseWheel = 0.0f;
+
+
 			ImGui::NewFrame();
-
-			//std::cout << "debug draw " << g_windows.size() << std::endl;
-
-			// @JOSH - i think the bool pointer may serve as the window 'id' too, not sure
 
 			for (auto it = g_windows.begin(); it != g_windows.end();) {
 				bool openWindow = true;
@@ -313,9 +359,7 @@ namespace pxljm {
 				} else {
 					it++;
 				}
-
 			}
-
 
 			ImGui::Render();
 		}
