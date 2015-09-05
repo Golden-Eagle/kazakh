@@ -44,6 +44,8 @@ namespace pxljm {
 		EntityTransform(i3d::vec3d = i3d::vec3d(), i3d::quatd = i3d::quatd());
 		EntityTransform(i3d::quatd);
 
+		void debugDraw() override;
+
 		virtual i3d::mat4d matrix();
 		virtual i3d::mat4d localMatrix();
 
@@ -69,7 +71,7 @@ namespace pxljm {
 	//
 	// Entity
 	//
-	class Entity : gecom::Uncopyable, public std::enable_shared_from_this<Entity> {
+	class Entity : gecom::Uncopyable, public std::enable_shared_from_this<Entity>, public DebugWindowDrawable {
 	private:
 		Scene *m_scene = nullptr;
 		EntityTransform m_root;
@@ -77,10 +79,17 @@ namespace pxljm {
 
 		std::vector<EntityComponent *> m_components;
 
+		std::string m_name;
+
 	public:
-		Entity(i3d::vec3d = i3d::vec3d(), i3d::quatd = i3d::quatd());
-		Entity(i3d::quatd);
+		Entity(std::string, i3d::vec3d = i3d::vec3d(), i3d::quatd = i3d::quatd());
+		Entity(std::string, i3d::quatd);
 		virtual ~Entity();
+
+		void debugDraw() override;
+		std::string debugWindowTitle() override;
+
+		std::string getName();
 
 		void registerWith(Scene &);
 		void deregister();

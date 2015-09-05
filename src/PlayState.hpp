@@ -110,7 +110,7 @@ namespace pxljm {
 
 
 			// The ASTEROID!!!!!!!!!
-			m_player = std::make_shared<Entity>(i3d::vec3d(0, 2, 0));
+			m_player = std::make_shared<Entity>("Player", i3d::vec3d(0, 2, 0));
 			// m_player->emplaceComponent<MeshDrawable>(
 			// 	assets::getMesh("cube"),
 			// 	assets::getMaterial("basic"));
@@ -123,7 +123,7 @@ namespace pxljm {
 
 
 			// Ground plane
-			m_ground = std::make_shared<Entity>(i3d::vec3d(0, 0, 0));
+			m_ground = std::make_shared<Entity>("Ground", i3d::vec3d(0, 0, 0));
 			m_ground->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(i3d2bt(i3d::vec3d(100, 0.1, 100))), 0);
 			m_ground->emplaceComponent<MeshDrawable>(
 				assets::getMesh("big_plane"),
@@ -133,7 +133,7 @@ namespace pxljm {
 
 
 			// FPS controller
-			m_camera = std::make_shared<Entity>(i3d::vec3d(0, 1, 5));
+			m_camera = std::make_shared<Entity>("FPS Camera", i3d::vec3d(0, 1, 5));
 			m_camera->emplaceComponent<FPSController>();
 			m_cameraComponent = m_camera->emplaceComponent<PerspectiveCamera>();
 			m_scene->add(m_camera);

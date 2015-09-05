@@ -6,6 +6,11 @@
 using namespace pxljm;
 
 
+void EntityComponent::debugDraw() {
+	ImGui::Text(" --- Custom Component --- ");
+}
+
+
 bool EntityComponent::hasEntity() { return bool(m_entity.lock()); }
 
 

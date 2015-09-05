@@ -339,21 +339,6 @@ namespace pxljm {
 		//io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f/60.0f);
 		//g_Time = current_time;
 
-
-		//// Setup inputs
-		//// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
-		//// Mouse position in screen coordinates (TODO SHOULD be set to -1,-1 if no mouse / on another screen, etc.)
-		//io.MousePos = DebugWindowManager::g_MousePosition;
-
-		//for (int i = 0; i < 3; i++) {
-		//	io.MouseDown[i] = g_MousePressed[i];
-		//	g_MousePressed[i] = false;
-		//}
-
-		//io.MouseWheel = g_MouseWheel;
-		//g_MouseWheel = 0.0f;
-
-
 		ImGui::NewFrame();
 
 		for (auto it = g_windows.begin(); it != g_windows.end();) {

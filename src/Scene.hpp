@@ -3,6 +3,7 @@
 #include <iostream>
 #include <queue>
 #include <memory>
+#include <string>
 #include <vector>
 
 #include <gecom/Window.hpp>

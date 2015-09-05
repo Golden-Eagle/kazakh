@@ -8,13 +8,13 @@ using namespace i3d;
 //
 // Entity
 //
-Entity::Entity(vec3d pos, quatd rot) {
+Entity::Entity(std::string name, vec3d pos, quatd rot) : m_name(name) {
 	m_root = EntityTransform(pos, rot);
 	m_components.push_back(&m_root);
 }
 
 
-Entity::Entity(quatd rot) {
+Entity::Entity(std::string name, quatd rot) : m_name(name) {
 	m_root = EntityTransform(rot);
 	m_components.push_back(&m_root);
 }
@@ -25,6 +25,27 @@ Entity::~Entity() {
 	// if (m_scene)
 	// 	for (EntityComponent *c : m_components)
 	// 		c->deregisterWith(*m_scene);
+}
+
+
+void Entity::debugDraw() {
+	ImGui::Text("Entity WOOP");
+
+	for (int i = 0; i < m_components.size(); ++i) {
+		ImGui::PushID(i);
+		m_components[i]->debugDraw();
+		ImGui::PopID();
+	}
+}
+
+
+string Entity::debugWindowTitle() {
+	return "Entity :: " + m_name;
+}
+
+
+string Entity::getName() {
+	return m_name;
 }
 
 
@@ -94,6 +115,31 @@ EntityTransform::EntityTransform(vec3d pos, quatd rot) : position(pos), rotation
 
 
 EntityTransform::EntityTransform(quatd rot) : position(vec3d()), rotation(rot) { }
+
+
+void EntityTransform::debugDraw() {
+	if (ImGui::TreeNode("Entity Transform")) {
+		static float backup[3] = { 0.0f, 0.0f, 0.0f };
+		static float shown[3] = { 0.0f, 0.0f, 0.0f };
+		vec3d pos = getPosition();
+		quatd rot = getRotation();
+
+		if (backup[0] == shown[0]) { shown[0] = pos.x(); }
+		else { pos.x() = shown[0]; } backup[0] = shown[0];
+
+		if (backup[1] == shown[1]) { shown[1] = pos.y(); }
+		else { pos.y() = shown[1]; } backup[1] = shown[1];
+
+		if (backup[2] == shown[2]) { shown[2] = pos.z(); }
+		else { pos.z() = shown[2]; } backup[2] = shown[2];
+
+		ImGui::InputFloat3("Posiiton", shown, 2);
+
+		setPosition(pos);
+
+		ImGui::TreePop();
+	}
+}
 
 
 mat4d EntityTransform::matrix() {

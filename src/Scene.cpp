@@ -9,7 +9,7 @@ using namespace gecom;
 using namespace i3d;
 using namespace std::chrono_literals;
 
-Scene::Scene() { }
+Scene::Scene() {}
 
 
 Scene::~Scene() { }
@@ -46,7 +46,16 @@ void Scene::add( entity_ptr e){
 
 
 void Scene::debugDraw() {
-	ImGui::Text("Hello World");
+	ImGui::Text("SCENE HELLO WORLD");
+	ImGui::CollapsingHeader("Entities");
+	for (int i = 0; i < m_entities.size(); i++) {
+		ImGui::PushID(i);
+		if (ImGui::TreeNode(m_entities[i]->getName().c_str())) {
+			m_entities[i]->debugDraw();
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+	}
 }
 
 
