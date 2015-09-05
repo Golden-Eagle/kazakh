@@ -119,55 +119,35 @@ EntityTransform::EntityTransform(quatd rot) : position(vec3d()), rotation(rot) {
 
 void EntityTransform::debugDraw() {
 	if (ImGui::TreeNode("Entity Transform")) {
-		static float pos_backup[3] = { 0.0f, 0.0f, 0.0f };
+
 		static float pos_shown[3] = { 0.0f, 0.0f, 0.0f };
 		vec3d pos = getPosition();
-		quatd rot = getRotation();
 
-		if (pos_backup[0] == pos_shown[0]) { pos_shown[0] = pos.x(); }
-		else { pos.x() = pos_shown[0]; } pos_backup[0] = pos_shown[0];
 
-		if (pos_backup[1] == pos_shown[1]) { pos_shown[1] = pos.y(); }
-		else { pos.y() = pos_shown[1]; } pos_backup[1] = pos_shown[1];
+		ImGui::PushItemWidth(80);
 
-		if (pos_backup[2] == pos_shown[2]) { pos_shown[2] = pos.z(); }
-		else { pos.z() = pos_shown[2]; } pos_backup[2] = pos_shown[2];
+		ImGui::Text("Position");
+		ImGui::SameLine();
 
-		ImGui::InputFloat3("Position", pos_shown, 2);
+		if (ImGui::InputFloat("X", &pos_shown[0])) pos.x() = pos_shown[0];
+		else pos_shown[0] = pos.x();
+		ImGui::SameLine();
 
-		static float rot_placeholder[3] = { 0.0f, 0.0f, 0.0f };
-		ImGui::InputFloat3("Rotation", rot_placeholder, 2);
+		if (ImGui::InputFloat("Y", &pos_shown[1])) pos.y() = pos_shown[1];
+		else pos_shown[1] = pos.y();
+		ImGui::SameLine();
 
+		if (ImGui::InputFloat("Z", &pos_shown[2])) pos.z() = pos_shown[2];
+		else pos_shown[2] = pos.z();
 		setPosition(pos);
 
+		ImGui::PopItemWidth();
 
 
 
-		if (ImGui::TreeNode("Local Transform")) {
-			static float local_pos_backup[3] = { 0.0f, 0.0f, 0.0f };
-			static float local_pos_shown[3] = { 0.0f, 0.0f, 0.0f };
-			vec3d pos = getPosition();
-			quatd rot = getRotation();
+		static float rot_placeholder[3] = { 0.0f, 0.0f, 0.0f };
+		ImGui::InputFloat3("Rotation", rot_placeholder);
 
-			if (local_pos_backup[0] == local_pos_shown[0]) { local_pos_shown[0] = pos.x(); }
-			else { pos.x() = local_pos_shown[0]; } local_pos_backup[0] = local_pos_shown[0];
-
-			if (local_pos_backup[1] == local_pos_shown[1]) { local_pos_shown[1] = pos.y(); }
-			else { pos.y() = local_pos_shown[1]; } local_pos_backup[1] = local_pos_shown[1];
-
-			if (local_pos_backup[2] == local_pos_shown[2]) { local_pos_shown[2] = pos.z(); }
-			else { pos.z() = local_pos_shown[2]; } local_pos_backup[2] = local_pos_shown[2];
-
-			ImGui::InputFloat3("Local Position", local_pos_shown, 2);
-
-			static float local_rot_placeholder[3] = { 0.0f, 0.0f, 0.0f };
-			ImGui::InputFloat3("Local Rotation", local_rot_placeholder, 2);
-
-			setPosition(pos);
-
-
-			ImGui::TreePop();
-		}
 		
 		ImGui::TreePop();
 	}

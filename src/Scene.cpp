@@ -47,14 +47,15 @@ void Scene::add( entity_ptr e){
 
 void Scene::debugDraw() {
 	ImGui::Text("SCENE HELLO WORLD");
-	ImGui::CollapsingHeader("Entities");
-	for (int i = 0; i < m_entities.size(); i++) {
-		ImGui::PushID(i);
-		if (ImGui::TreeNode(m_entities[i]->getName().c_str())) {
-			m_entities[i]->debugDraw();
-			ImGui::TreePop();
+	if (ImGui::CollapsingHeader("Entities")) {
+		for (int i = 0; i < m_entities.size(); i++) {
+			ImGui::PushID(i);
+			if (ImGui::TreeNode(m_entities[i]->getName().c_str())) {
+				m_entities[i]->debugDraw();
+				ImGui::TreePop();
+			}
+			ImGui::PopID();
 		}
-		ImGui::PopID();
 	}
 }
 

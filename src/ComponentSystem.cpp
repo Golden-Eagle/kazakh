@@ -7,7 +7,7 @@ using namespace pxljm;
 
 
 void EntityComponent::debugDraw() {
-	ImGui::Text(" --- Custom Component --- ");
+	ImGui::Text("> --- Unknown Component --- ");
 }
 
 
