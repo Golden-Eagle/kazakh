@@ -39,6 +39,25 @@ RigidBody::RigidBody() {
 RigidBody::RigidBody(collider_ptr c, double m) : m_collider(c), m_mass(m) { }
 
 
+void RigidBody::debugDraw() {
+	if (ImGui::TreeNode("Rigid Body")) {
+
+		if (ImGui::TreeNode("Commands")) {
+
+			static float impluse[3] = { 0.0f, 0.0f, 0.0f };
+			ImGui::InputFloat3("", impluse, 2); ImGui::SameLine();
+			if (ImGui::Button("Apply Impluse")) {
+				applyImpulse(vec3d(impluse[0], impluse[1], impluse[2]));
+			}
+
+
+			ImGui::TreePop();
+		}
+		ImGui::TreePop();
+	}
+}
+
+
 void RigidBody::start() {
 	// Create rigid body
 	btCollisionShape *shape = m_collider->getCollisionShape();
