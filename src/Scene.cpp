@@ -48,12 +48,19 @@ void Scene::add( entity_ptr e){
 void Scene::debugDraw() {
 	ImGui::Text("SCENE HELLO WORLD");
 	if (ImGui::CollapsingHeader("Entities")) {
+		static entity_ptr selected;
+		
+
+		ImGui::BeginChild("EL", ImVec2(300,300), true);
+
 		for (int i = 0; i < m_entities.size(); i++) {
 			ImGui::PushID(i);
 
 			bool open = ImGui::TreeNode("");
 			ImGui::SameLine();
-			ImGui::Text(m_entities[i]->getName().c_str());
+			if (ImGui::Selectable(m_entities[i]->getName().c_str(), m_entities[i]==selected)) {
+				selected = m_entities[i];
+			}
 
 			if (ImGui::BeginPopupContextItem("item context menu")) {
 				if (ImGui::Selectable("Open in new window")) {
@@ -73,6 +80,17 @@ void Scene::debugDraw() {
 
 			ImGui::PopID();
 		}
+		ImGui::EndChild();
+
+		ImGui::SameLine();
+
+		ImGui::BeginChild("ES", ImVec2(300,0), true);
+		if (selected) {
+			selected->debugDraw();
+		}
+		ImGui::EndChild();
+
+		
 	}
 }
 
