@@ -86,6 +86,7 @@ out vec4 frag_color;
 
 void main() {
 	frag_color = texture(sampler_color, fullscreen_tex_coord).rgba;
+	gl_FragDepth = texture(sampler_depth, fullscreen_tex_coord).r;
 }
 
 #endif
@@ -197,7 +198,8 @@ namespace pxljm {
 		}
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glDisable(GL_DEPTH_TEST);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		// glDisable(GL_DEPTH_TEST);
 		glUseProgram(prog_deferred0);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -219,6 +221,5 @@ namespace pxljm {
 		glDepthFunc(GL_LEQUAL);
 		s.physicsSystem().debugDraw(s);
 
-		// s.uiRenderSystem().render(s, m_win->width(), m_win->height(), size.w, size.h);
 	}
 }
