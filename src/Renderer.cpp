@@ -198,8 +198,7 @@ namespace pxljm {
 		}
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		// glDisable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
 		glUseProgram(prog_deferred0);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -216,6 +215,9 @@ namespace pxljm {
 		draw_dummy();
 
 		glUseProgram(0);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, m_fbo_scene);
+		glBlitFramebuffer(0, 0, size.w, size.h, 0, 0, size.w, size.h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
