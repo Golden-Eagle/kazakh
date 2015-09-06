@@ -50,10 +50,27 @@ void Scene::debugDraw() {
 	if (ImGui::CollapsingHeader("Entities")) {
 		for (int i = 0; i < m_entities.size(); i++) {
 			ImGui::PushID(i);
-			if (ImGui::TreeNode(m_entities[i]->getName().c_str())) {
+
+			bool open = ImGui::TreeNode("");
+			ImGui::SameLine();
+			ImGui::Text(m_entities[i]->getName().c_str());
+
+			if (ImGui::BeginPopupContextItem("item context menu")) {
+				if (ImGui::Selectable("Open in new window")) {
+					DebugWindowManager::registerDebugWindowDrawable(m_entities[i].get());
+				}
+				ImGui::Separator();
+				if (ImGui::Selectable("Remove from scene")) {
+					std::cout << "Currently not supported..." << std::endl;
+				}
+				ImGui::EndPopup();
+			}
+
+			if (open) {
 				m_entities[i]->debugDraw();
 				ImGui::TreePop();
 			}
+
 			ImGui::PopID();
 		}
 	}
