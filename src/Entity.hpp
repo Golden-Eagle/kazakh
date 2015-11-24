@@ -20,7 +20,7 @@ namespace pxljm {
 		virtual void registerWith(Scene &) override;
 		virtual void deregisterWith(Scene &) override;
 
-		virtual i3d::mat4d matrix() = 0;
+		virtual i3d::mat4d matrix() const = 0;
 
 		virtual i3d::vec3d getPosition() const = 0;
 		virtual i3d::quatd getRotation() const = 0;
@@ -46,8 +46,8 @@ namespace pxljm {
 
 		void debugDraw() override;
 
-		virtual i3d::mat4d matrix();
-		virtual i3d::mat4d localMatrix();
+		virtual i3d::mat4d matrix() const;
+		virtual i3d::mat4d localMatrix() const;
 
 		virtual i3d::vec3d getPosition() const;
 		virtual i3d::quatd getRotation() const;

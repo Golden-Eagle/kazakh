@@ -154,32 +154,24 @@ void EntityTransform::debugDraw() {
 }
 
 
-mat4d EntityTransform::matrix() {
-	if (m_parent) {
-		return m_parent->matrix() * mat4d::translate(position) * mat4d::rotate(rotation);
-	}
-	return mat4d::translate(position) * mat4d::rotate(rotation);
+mat4d EntityTransform::matrix() const {
+	return (m_parent) ? m_parent->matrix() * mat4d::translate(position) * mat4d::rotate(rotation)
+		: mat4d::translate(position) * mat4d::rotate(rotation);
 }
 
 
-mat4d EntityTransform::localMatrix() {
+mat4d EntityTransform::localMatrix() const {
 	return mat4d::translate(position) * mat4d::rotate(rotation);
 }
 
 
 vec3d EntityTransform::getPosition() const {
-	if (m_parent) {
-		return vec3d(m_parent->matrix() * vec4d(position));
-	}
-	return position;
+	return (m_parent) ? vec3d(m_parent->matrix() * vec4d(position)) : position;
 }
 
 
 quatd EntityTransform::getRotation() const {
-	if (m_parent) {
-		return m_parent->getRotation() * rotation;
-	}
-	return rotation;
+	return (m_parent) ? m_parent->getRotation() * rotation : rotation;
 }
 
 
