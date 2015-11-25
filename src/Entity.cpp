@@ -60,6 +60,7 @@ void Entity::addComponent(unique_ptr<EntityComponent> ec) {
 	m_components.push_back(ecp);
 
 	ecp->m_entity = shared_from_this();
+	ecp->onAttachToEntity();
 
 	ecp->start();
 
@@ -71,6 +72,7 @@ void Entity::addComponent(unique_ptr<EntityComponent> ec) {
 void Entity::removeComponent(EntityComponent *c) {
 	auto it = find(m_components.begin(), m_components.end(), c);
 	if (it == m_components.end()) {
+		(*it)->onDetachFromEntity();
 		if (m_scene)
 			(*it)->deregisterWith(*m_scene);
 		m_components.erase(it);

@@ -23,6 +23,9 @@ namespace pxljm {
 		virtual void registerWith(Scene &) = 0;
 		virtual void deregisterWith(Scene &) = 0;
 
+		virtual void onAttachToEntity() { }
+		virtual void onDetachFromEntity() { }
+
 		std::weak_ptr<Entity> m_entity;
 		friend class Entity;
 

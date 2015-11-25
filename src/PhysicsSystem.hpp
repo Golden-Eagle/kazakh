@@ -186,31 +186,40 @@ namespace pxljm {
 	//
 	// Physics Trigger Callback component
 	//
+	class CollisionEnterMessage : public Message { };
+	class CollisionMessage : public Message { };
+	class CollisionExitMessage : public Message { };
+
 	class CollisionCallback : public virtual EntityComponent {
 	public:
 		virtual void registerWith(Scene &) override;
 		virtual void deregisterWith(Scene &) override;
-
-		virtual void onCollisionEnter(Physical *) { }
-		virtual void onCollision(Physical *) { }
-		virtual void onCollisionExit(Physical *) { }
+		virtual void onAttachToEntity() override;
+		virtual void onDetachFromEntity() override;
+		virtual void onCollisionEnter(Entity *, Entity *, CollisionEnterMessage *) { }
+		virtual void onCollision(Entity *, Entity *, CollisionMessage *) { }
+		virtual void onCollisionExit(Entity *, Entity *, CollisionExitMessage *) { }
 	};
-
-
 
 
 
 	//
 	// Physics Trigger Callback component
 	//
+	class TriggerEnterMessage : public Message { };
+	class TriggerMessage : public Message { };
+	class TriggerExitMessage : public Message { };
+
 	class TriggerCallback : public virtual EntityComponent {
 	public:
 		virtual void registerWith(Scene &) override;
 		virtual void deregisterWith(Scene &) override;
+		virtual void onAttachToEntity() override;
+		virtual void onDetachFromEntity() override;
 
-		virtual void onTriggerEnter(Physical *) { }
-		virtual void onTrigger(Physical *) { }
-		virtual void onTriggerExit(Physical *) { }
+		virtual void onTriggerEnter(Entity *, Entity *, TriggerEnterMessage *) { }
+		virtual void onTrigger(Entity *, Entity *, TriggerMessage *) { }
+		virtual void onTriggerExit(Entity *, Entity *, TriggerExitMessage *) { }
 	};
 
 
@@ -260,55 +269,20 @@ namespace pxljm {
 	public:
 		using clock_t = std::chrono::steady_clock;
 
-		PhysicsSystem();
-		virtual ~PhysicsSystem();
-
-		void registerPhysicsUpdatable(PhysicsUpdatable *);
-		void deregisterPhysicsUpdatable(PhysicsUpdatable *);
-
-		void registerRigidBody(RigidBody *);
-		void deregisterRigidBody(RigidBody *);
-
-		void registerCollisionCallback(CollisionCallback *);
-		void deregisterCollisionCallback(CollisionCallback *);
-
-		void registerTrigger(Trigger *);
-		void deregisterTrigger(Trigger *);
-
-		void registerTriggerCallback(TriggerCallback *);
-		void deregisterTriggerCallback(TriggerCallback *);
-
-		void resetClock();
-		void tick();
-
-		clock_t::time_point lastTick();
-
-		void debugDraw(Scene &);
-
-		void processPhysicsCallback(btScalar);
-
 	private:
-
 		PhysicsDebugDrawer m_debugDrawer;
 
 		clock_t::time_point m_lastTick;
 
 		// Physics collections
 		std::unordered_set<PhysicsUpdatable *> m_physicsUpdatables;
-
 		std::unordered_set<RigidBody *> m_rigidbodies;
-		std::unordered_map<Entity *, std::unordered_set<CollisionCallback *>> m_collisionCallbacks;
-
 		std::unordered_set<Trigger *> m_triggers;
-		std::unordered_map<Entity *, std::unordered_set<TriggerCallback *>> m_triggerCallbacks;
-
 
 		// internal collision sets
 		bool m_collisionsA_isCurrent = true;
 		std::unordered_set<std::pair<const btCollisionObject *, const btCollisionObject *>> m_currentFrame;
 		std::unordered_set<std::pair<const btCollisionObject *, const btCollisionObject *>> m_lastFrame;
-
-
 
 		// physics internals
 		btBroadphaseInterface* broadphase;
@@ -318,5 +292,27 @@ namespace pxljm {
 
 		btDiscreteDynamicsWorld* dynamicsWorld;
 
+
+	public:
+		PhysicsSystem();
+		virtual ~PhysicsSystem();
+
+		void registerPhysicsUpdatable(PhysicsUpdatable *);
+		void deregisterPhysicsUpdatable(PhysicsUpdatable *);
+
+		void registerRigidBody(RigidBody *);
+		void deregisterRigidBody(RigidBody *);
+
+		void registerTrigger(Trigger *);
+		void deregisterTrigger(Trigger *);
+
+		void resetClock();
+		void tick();
+
+		clock_t::time_point lastTick();
+
+		void debugDraw(Scene &);
+
+		void processPhysicsCallback(btScalar);
 	};
 }

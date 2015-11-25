@@ -221,17 +221,6 @@ void RigidBody::setWorldTransform (const btTransform &centerOfMassWorldTrans) {
 
 
 
-//
-// Collision Callback component
-//
-void CollisionCallback::registerWith(Scene &s) { s.physicsSystem().registerCollisionCallback(this); }
-
-
-void CollisionCallback::deregisterWith(Scene &s) { s.physicsSystem().deregisterCollisionCallback(this); }
-
-
-
-
 
 //
 // Trigger component
@@ -305,14 +294,50 @@ collider_ptr Trigger::getCollider() {
 
 
 //
+// Collision Callback component
+//
+void CollisionCallback::registerWith(Scene &) { }
+
+
+void CollisionCallback::deregisterWith(Scene &) { }
+
+
+void CollisionCallback::onAttachToEntity() {
+	entity()->registerMessageHandler<CollisionCallback, CollisionEnterMessage, &CollisionCallback::onCollisionEnter>(this);
+	entity()->registerMessageHandler<CollisionCallback, CollisionMessage, &CollisionCallback::onCollision>(this);
+	entity()->registerMessageHandler<CollisionCallback, CollisionExitMessage, &CollisionCallback::onCollisionExit>(this);
+}
+
+
+void CollisionCallback::onDetachFromEntity() {
+	// TODO
+	abort();
+}
+
+
+
+
+
+//
 // Trigger Callback component
 //
-void TriggerCallback::registerWith(Scene &s) { s.physicsSystem().registerTriggerCallback(this); }
+void TriggerCallback::registerWith(Scene &) { }
 
 
-void TriggerCallback::deregisterWith(Scene &s) { s.physicsSystem().deregisterTriggerCallback(this); }
+void TriggerCallback::deregisterWith(Scene &) { }
 
 
+void TriggerCallback::onAttachToEntity() {
+	entity()->registerMessageHandler<TriggerCallback, TriggerEnterMessage, &TriggerCallback::onTriggerEnter>(this);
+	entity()->registerMessageHandler<TriggerCallback, TriggerMessage, &TriggerCallback::onTrigger>(this);
+	entity()->registerMessageHandler<TriggerCallback, TriggerExitMessage, &TriggerCallback::onTriggerExit>(this);
+}
+
+
+void TriggerCallback::onDetachFromEntity() {
+	// TODO
+	abort();
+}
 
 
 PhysicsDebugDrawer::PhysicsDebugDrawer() {
@@ -507,20 +532,6 @@ void PhysicsSystem::deregisterRigidBody(RigidBody *c) {
 }
 
 
-void PhysicsSystem::registerCollisionCallback(CollisionCallback *c) {
-	m_collisionCallbacks[c->entity().get()].insert(c);
-}
-
-
-void PhysicsSystem::deregisterCollisionCallback(CollisionCallback *c) {
-	unordered_set<CollisionCallback *> &cset = m_collisionCallbacks[c->entity().get()];
-	cset.erase(c);
-	if (cset.empty()) {
-		m_collisionCallbacks.erase(c->entity().get());
-	}
-}
-
-
 void PhysicsSystem::registerTrigger(Trigger *c) {
 	m_triggers.insert(c);
 	c->addToDynamicsWorld(dynamicsWorld);
@@ -530,20 +541,6 @@ void PhysicsSystem::registerTrigger(Trigger *c) {
 void PhysicsSystem::deregisterTrigger(Trigger *c) {
 	c->removeFromDynamicsWorld();
 	m_triggers.erase(c);
-}
-
-
-void PhysicsSystem::registerTriggerCallback(TriggerCallback *c) {
-	m_triggerCallbacks[c->entity().get()].insert(c);
-}
-
-
-void PhysicsSystem::deregisterTriggerCallback(TriggerCallback *c) {
-	unordered_set<TriggerCallback *> &cset = m_triggerCallbacks[c->entity().get()];
-	cset.erase(c);
-	if (cset.empty()) {
-		m_triggerCallbacks.erase(c->entity().get());
-	}
 }
 
 
@@ -576,6 +573,7 @@ void PhysicsSystem::debugDraw(Scene &s) {
 void PhysicsSystem::processPhysicsCallback(btScalar timeStep) {
 	// Process collisions
 	//
+
 	// Swap collision buffers
 	swap(m_currentFrame, m_lastFrame);
 	m_currentFrame.clear();
@@ -591,60 +589,63 @@ void PhysicsSystem::processPhysicsCallback(btScalar timeStep) {
 		Entity * entityA = physicsA ? physicsA->entity().get() : nullptr;
 		Entity * entityB = physicsB ? physicsB->entity().get() : nullptr;
 
-		void (CollisionCallback::*collision_phase_handler[])(Physical *) {
-			&CollisionCallback::onCollisionEnter,
-			&CollisionCallback::onCollision,
-			&CollisionCallback::onCollisionExit
-		};
+		// ignore if we don't have the entities
+		if (!entityA || !entityA) return;
 
-		void (TriggerCallback::*trigger_phase_handler[])(Physical *) {
-			&TriggerCallback::onTriggerEnter,
-			&TriggerCallback::onTrigger,
-			&TriggerCallback::onTriggerExit
-		};
+		CollisionEnterMessage cEnter;
+		CollisionMessage cStay;
+		CollisionExitMessage cExit;
+
+		TriggerEnterMessage tEnter;
+		TriggerMessage tStay;
+		TriggerExitMessage tExit;
 
 		switch ((unsigned(isGhostA) << 1) | isGhostB) {
 		case 0: // dynamicA/dynamicB collision
-			{
-				auto cca_it = m_collisionCallbacks.find(entityA);
-				if (cca_it != m_collisionCallbacks.end()) {
-					for (CollisionCallback *c : cca_it->second) {
-						(c->*(collision_phase_handler[phase]))(physicsB);
-					}
-				}
-				auto ccb_it = m_collisionCallbacks.find(entityB);
-				if (ccb_it != m_collisionCallbacks.end()) {
-					for (CollisionCallback *c : ccb_it->second) {
-						(c->*(collision_phase_handler[phase]))(physicsA);
-					}
-				}
+		{
+			switch (phase) {
+			case 0:
+				entityA->sendMessage(entityB, &cEnter);
+				entityB->sendMessage(entityA, &cEnter);
 				break;
-			}
+			case 1:
+				entityA->sendMessage(entityB, &cStay);
+				entityB->sendMessage(entityA, &cStay);
+				break;
+			case 2: 
+				entityA->sendMessage(entityB, &cExit);
+				entityB->sendMessage(entityA, &cExit);
+				break;
+			default:
+				break;
+			};
+			break;
+		}
 		case 1: // dynamicA/ghostB collision
-			{
-				auto tcb_it = m_triggerCallbacks.find(entityB);
-				if (tcb_it != m_triggerCallbacks.end()) {
-					for (TriggerCallback *t : tcb_it->second) {
-						(t->*(trigger_phase_handler[phase]))(physicsA);
-					}
-				}
-				break;
-			}
+		{
+			switch (phase) {
+			case 0: entityB->sendMessage(entityA, &tEnter); break;
+			case 1: entityB->sendMessage(entityA, &tStay); break;
+			case 2: entityB->sendMessage(entityA, &tExit); break;
+			default: break;
+			};
+			break;
+		}
 		case 2: // ghostA/dynamicB collision
-			{
-				auto tca_it = m_triggerCallbacks.find(entityA);
-				if (tca_it != m_triggerCallbacks.end()) {
-					for (TriggerCallback *t : tca_it->second) {
-						(t->*(trigger_phase_handler[phase]))(physicsB);
-					}
-				}
-				break;
-			}
+		{
+			switch (phase) {
+			case 0: entityA->sendMessage(entityB, &tEnter); break;
+			case 1: entityA->sendMessage(entityB, &tStay); break;
+			case 2: entityA->sendMessage(entityB, &tExit); break;
+			default: break;
+			};
+		}
 		default:
 			break;
 		}
 	};
 
+	// iterate through manifolds
 	int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
 	for (int i = 0; i < numManifolds; ++i) {
 		btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
@@ -658,7 +659,7 @@ void PhysicsSystem::processPhysicsCallback(btScalar timeStep) {
 		for (int j = 0; j<numContacts; ++j) {
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 
-			// Actual contact
+			// actual contact
 			if (pt.getDistance() < 0.f) {
 				m_currentFrame.insert(collisionPair);
 				auto it  = m_lastFrame.find(collisionPair);
@@ -679,7 +680,6 @@ void PhysicsSystem::processPhysicsCallback(btScalar timeStep) {
 	for (auto collisionExitPair : m_lastFrame) {
 		do_callback(collisionExitPair.first, collisionExitPair.second, 2);
 	}
-
 
 
 	// Process physics updates

@@ -34,6 +34,7 @@ namespace pxljm {
 		virtual void setRotation(i3d::quatd) = 0;
 	};
 
+
 	//
 	// Entity Transform component
 	//
@@ -71,6 +72,7 @@ namespace pxljm {
 		EntityTransform * getParent();
 	};
 
+
 	//
 	// Entity
 	//
@@ -91,13 +93,12 @@ namespace pxljm {
 
 		// fields
 		Scene *m_scene = nullptr;
-		EntityTransform m_root;
 		std::vector<EntityComponent *> m_components;
 		std::vector<std::unique_ptr<EntityComponent>> m_dynamicComponents;
 		std::unordered_map<std::type_index, std::vector<message_handler>> m_handlers;
 
 		std::string m_name;
-
+		EntityTransform m_root;
 
 
 		// helper methods
