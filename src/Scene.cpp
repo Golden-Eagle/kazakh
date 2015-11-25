@@ -44,62 +44,6 @@ void Scene::add( entity_ptr e){
 	m_entities.push_back(e);
 }
 
-
-void Scene::debugDraw() {
-	ImGui::Text("SCENE HELLO WORLD");
-	if (ImGui::CollapsingHeader("Entities")) {
-		static entity_ptr selected;
-		
-
-		ImGui::BeginChild("EL", ImVec2(300,300), true);
-
-		for (int i = 0; i < m_entities.size(); i++) {
-			ImGui::PushID(i);
-
-			bool open = ImGui::TreeNode("");
-			ImGui::SameLine();
-			if (ImGui::Selectable(m_entities[i]->getName().c_str(), m_entities[i]==selected)) {
-				selected = m_entities[i];
-			}
-
-			if (ImGui::BeginPopupContextItem("item context menu")) {
-				if (ImGui::Selectable("Open in new window")) {
-					DebugWindowManager::registerDebugWindowDrawable(m_entities[i].get());
-				}
-				ImGui::Separator();
-				if (ImGui::Selectable("Remove from scene")) {
-					std::cout << "Currently not supported..." << std::endl;
-				}
-				ImGui::EndPopup();
-			}
-
-			if (open) {
-				m_entities[i]->debugDraw();
-				ImGui::TreePop();
-			}
-
-			ImGui::PopID();
-		}
-		ImGui::EndChild();
-
-		ImGui::SameLine();
-
-		ImGui::BeginChild("ES", ImVec2(300,0), true);
-		if (selected) {
-			selected->debugDraw();
-		}
-		ImGui::EndChild();
-
-		
-	}
-}
-
-
-string Scene::debugWindowTitle() {
-	return "Scene";
-}
-
-
 CameraSystem & Scene::cameraSystem() { return m_cameraSystem; }
 
 

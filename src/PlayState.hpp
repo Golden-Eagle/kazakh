@@ -1,17 +1,18 @@
-#ifndef PXLJM_PLAYSTATE_HPP
-#define PXLJM_PLAYSTATE_HPP
-
-// fuck these spaces
+#pragma once
 
 #include <chrono>
 
 #include "Pxljm.hpp"
 #include "Game.hpp"
-// #include "Joystick.hpp"
 #include <gecom/Window.hpp>
 
 namespace pxljm {
 
+
+
+	//
+	// Crazy temp controller stuff
+	//
 	class FPSController : public InputUpdatable, public Updatable {
 	private:
 		i3d::vec3d m_movement;
@@ -139,7 +140,6 @@ namespace pxljm {
 			m_scene->add(m_camera);
 			m_scene->cameraSystem().setCamera(m_cameraComponent);
 
-			DebugWindowManager::registerDebugWindowDrawable(m_scene.get());
 
 
 		}
@@ -155,5 +155,3 @@ namespace pxljm {
 		}
 	};
 }
-
-#endif

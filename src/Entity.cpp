@@ -8,13 +8,13 @@ using namespace i3d;
 //
 // Entity
 //
-Entity::Entity(std::string name, vec3d pos, quatd rot) : m_name(name) {
+Entity::Entity(string name, vec3d pos, quatd rot) : m_name(name) {
 	m_root = EntityTransform(pos, rot);
 	m_components.push_back(&m_root);
 }
 
 
-Entity::Entity(std::string name, quatd rot) : m_name(name) {
+Entity::Entity(string name, quatd rot) : m_name(name) {
 	m_root = EntityTransform(rot);
 	m_components.push_back(&m_root);
 }
@@ -28,24 +28,13 @@ Entity::~Entity() {
 }
 
 
-void Entity::debugDraw() {
-	ImGui::Text("Entity WOOP");
-
-	for (int i = 0; i < m_components.size(); ++i) {
-		ImGui::PushID(i);
-		m_components[i]->debugDraw();
-		ImGui::PopID();
-	}
-}
-
-
-string Entity::debugWindowTitle() {
-	return "Entity :: " + m_name;
-}
-
-
 string Entity::getName() {
 	return m_name;
+}
+
+
+EntityTransform * Entity::root() {
+	return &m_root;
 }
 
 
@@ -56,6 +45,7 @@ void Entity::registerWith(Scene &s) {
 		c->registerWith(s);
 }
 
+
 void Entity::deregister() {
 	for (EntityComponent *c : m_components)
 		c->deregisterWith(*m_scene);
@@ -63,7 +53,7 @@ void Entity::deregister() {
 }
 
 
-void Entity::addComponent(std::unique_ptr<EntityComponent> ec) {
+void Entity::addComponent(unique_ptr<EntityComponent> ec) {
 	EntityComponent *ecp = ec.get();
 
 	m_dynamicComponents.push_back(std::move(ec));
@@ -88,12 +78,17 @@ void Entity::removeComponent(EntityComponent *c) {
 }
 
 
-EntityTransform * Entity::root() {
-	return &m_root;
+const vector<EntityComponent *> & Entity::getAllComponents() const {
+	return m_components;
 }
 
-const std::vector<EntityComponent *> & Entity::getAllComponents() const {
-	return m_components;
+
+void Entity::sendMessage(Entity *sender, Message *m) {
+	auto it = m_handlers.find(typeid(*m));
+	if (it == m_handlers.end()) return;
+	for (message_handler &mh : it->second) {
+		mh.proxy(this, sender, m, &mh);
+	}
 }
 
 
@@ -115,43 +110,6 @@ EntityTransform::EntityTransform(vec3d pos, quatd rot) : position(pos), rotation
 
 
 EntityTransform::EntityTransform(quatd rot) : position(vec3d()), rotation(rot) { }
-
-
-void EntityTransform::debugDraw() {
-	if (ImGui::TreeNode("Entity Transform")) {
-
-		static float pos_shown[3] = { 0.0f, 0.0f, 0.0f };
-		vec3d pos = getPosition();
-
-
-		ImGui::PushItemWidth(80);
-
-		ImGui::Text("Position");
-		ImGui::SameLine();
-
-		if (ImGui::InputFloat("X", &pos_shown[0])) pos.x() = pos_shown[0];
-		else pos_shown[0] = pos.x();
-		ImGui::SameLine();
-
-		if (ImGui::InputFloat("Y", &pos_shown[1])) pos.y() = pos_shown[1];
-		else pos_shown[1] = pos.y();
-		ImGui::SameLine();
-
-		if (ImGui::InputFloat("Z", &pos_shown[2])) pos.z() = pos_shown[2];
-		else pos_shown[2] = pos.z();
-		setPosition(pos);
-
-		ImGui::PopItemWidth();
-
-
-
-		static float rot_placeholder[3] = { 0.0f, 0.0f, 0.0f };
-		ImGui::InputFloat3("Rotation", rot_placeholder);
-
-		
-		ImGui::TreePop();
-	}
-}
 
 
 mat4d EntityTransform::matrix() const {

@@ -59,8 +59,6 @@ namespace pxljm {
 		RigidBody();
 		RigidBody(collider_ptr, double = 1.0);
 
-		virtual void debugDraw() override;
-
 		virtual void start() override;
 		virtual void registerWith(Scene &) override;
 		virtual void deregisterWith(Scene &) override;

@@ -29,7 +29,7 @@ namespace pxljm {
 	using scene_ptr = std::shared_ptr<Scene>;
 
 	//Colection of entities
-	class Scene : public std::enable_shared_from_this<Scene>, public DebugWindowDrawable {
+	class Scene : public std::enable_shared_from_this<Scene> {
 	private:
 		std::vector<entity_ptr> m_entities;
 
@@ -46,9 +46,6 @@ namespace pxljm {
 
 		void update();
 		void add( entity_ptr e);
-
-		virtual void debugDraw();
-		virtual std::string debugWindowTitle();
 
 		CameraSystem & cameraSystem();
 		DrawableSystem & drawableSystem();

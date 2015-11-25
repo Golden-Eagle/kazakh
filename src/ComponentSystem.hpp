@@ -17,7 +17,7 @@ namespace pxljm {
 
 	class Scene;
 
-	class EntityComponent : public DebugDrawable {
+	class EntityComponent {
 	private:
 		virtual void start() { }
 		virtual void registerWith(Scene &) = 0;
@@ -29,8 +29,6 @@ namespace pxljm {
 	public:
 		virtual ~EntityComponent() { }
 
-		virtual void debugDraw() override;
-
 		bool hasEntity();
 		entity_ptr entity() const;
 	};
@@ -38,5 +36,10 @@ namespace pxljm {
 	class ComponentSystem {
 	public:
 		virtual ~ComponentSystem() { }
+	};
+
+	class Message {
+	public:
+		virtual ~Message() { }
 	};
 }

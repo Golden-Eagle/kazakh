@@ -1,9 +1,14 @@
 #pragma once
 
 #include <algorithm>
+#include <iostream>
 #include <memory>
-#include <vector>
+#include <string>
+#include <typeinfo>
+#include <typeindex>
+#include <utility>
 #include <unordered_set>
+#include <vector>
 
 #include <gecom/Uncopyable.hpp>
 #include <gecom/Initial3D.hpp>
@@ -13,7 +18,7 @@
 namespace pxljm {
 
 	//
-	// Tranform component
+	// Transform component
 	//
 	class TransformComponent : public virtual EntityComponent {
 	public:
@@ -30,7 +35,7 @@ namespace pxljm {
 	};
 
 	//
-	// Entity Tranform component
+	// Entity Transform component
 	//
 	class EntityTransform : public virtual TransformComponent {
 	private:
@@ -43,8 +48,6 @@ namespace pxljm {
 	public:
 		EntityTransform(i3d::vec3d = i3d::vec3d(), i3d::quatd = i3d::quatd());
 		EntityTransform(i3d::quatd);
-
-		void debugDraw() override;
 
 		virtual i3d::mat4d matrix() const;
 		virtual i3d::mat4d localMatrix() const;
@@ -71,44 +74,76 @@ namespace pxljm {
 	//
 	// Entity
 	//
-	class Entity : gecom::Uncopyable, public std::enable_shared_from_this<Entity>, public DebugWindowDrawable {
+	class Entity : gecom::Uncopyable, public std::enable_shared_from_this<Entity> {
+	public:
+		template <typename ComponentT, typename MessageT>
+		using message_handler_memfn_t = void (ComponentT::*)(Entity *, Entity *, MessageT *);
+
 	private:
+
+		// inner helper struct
+		struct message_handler {
+			void (*proxy)(Entity *, Entity *, Message *, const message_handler *); // dispatch proxy
+			void *c; // component
+			alignas(void *) unsigned char h[16]; // member function pointer
+		};
+
+
+		// fields
 		Scene *m_scene = nullptr;
 		EntityTransform m_root;
-		std::vector<std::unique_ptr<EntityComponent>> m_dynamicComponents;
-
 		std::vector<EntityComponent *> m_components;
+		std::vector<std::unique_ptr<EntityComponent>> m_dynamicComponents;
+		std::unordered_map<std::type_index, std::vector<message_handler>> m_handlers;
 
 		std::string m_name;
+
+
+
+		// helper methods
+		template <typename ComponentT, typename MessageT>
+		static void dynamicDispatchProxy(Entity *receiver, Entity *sender, Message *m, const message_handler *mh) {
+			auto hh = reinterpret_cast<const message_handler_memfn_t<ComponentT, MessageT> &>(mh->h);
+			auto cc = reinterpret_cast<ComponentT *>(mh->c);
+			auto mm = static_cast<MessageT *>(m);
+			(cc->*hh)(receiver, sender, mm);
+		}
+
+		template <typename ComponentT, typename MessageT, message_handler_memfn_t<ComponentT, MessageT> HandlerF>
+		static void staticDispatchProxy(Entity *receiver, Entity *sender, Message *m, const message_handler *mh) {
+			auto cc = reinterpret_cast<ComponentT *>(mh->c);
+			auto mm = static_cast<MessageT *>(m);
+			(cc->*HandlerF)(receiver, sender, mm);
+		}
+
 
 	public:
 		Entity(std::string, i3d::vec3d = i3d::vec3d(), i3d::quatd = i3d::quatd());
 		Entity(std::string, i3d::quatd);
 		virtual ~Entity();
 
-		void debugDraw() override;
-		std::string debugWindowTitle() override;
-
 		std::string getName();
+		EntityTransform * root();
 
 		void registerWith(Scene &);
 		void deregister();
 
 
+		// Components
+		//
 		void addComponent(std::unique_ptr<EntityComponent>);
+
 		template<typename T, typename... Args>
 		T * emplaceComponent(Args&&... args)  {
 			std::unique_ptr<T> ec = std::make_unique<T>(std::forward<Args>(args)...);
 			addComponent(std::move(ec));
 			return ec.get();
 		}
+
 		void removeComponent(EntityComponent *);
 
-
-		EntityTransform * root();
 		const std::vector<EntityComponent *> & getAllComponents() const;
 
-		//TODO need to make this depth first search?
 		template<typename T>
 		T * getComponent() const {
 			for (EntityComponent * c : m_components)
@@ -116,8 +151,7 @@ namespace pxljm {
 					return i;
 			return nullptr;
 		}
-
-		//TODO need to make this depth first search?
+		
 		template<typename T>
 		std::vector<T *> getComponents() const {
 			std::vector<T *> componentList;
@@ -126,5 +160,30 @@ namespace pxljm {
 					componentList.push_back(i);
 			return componentList;
 		}
+
+
+
+		// Registration methods
+		//
+		template <typename ComponentT, typename MessageT>
+		void registerMessageHandler(ComponentT *c, message_handler_memfn_t<ComponentT, MessageT> h) {
+			message_handler mh;
+			mh.proxy = dynamicDispatchProxy<ComponentT, MessageT>;
+			reinterpret_cast<ComponentT *&>(mh.c) = c;
+			static_assert(sizeof(h) <= sizeof(mh.h), "member function pointer too big");
+			reinterpret_cast<message_handler_memfn_t<ComponentT, MessageT> &>(mh.h) = h;
+			m_handlers[typeid(MessageT)].push_back(mh);
+		}
+
+		template <typename ComponentT, typename MessageT, message_handler_memfn_t<ComponentT, MessageT> HandlerF>
+		void registerMessageHandler(ComponentT *c) {
+			message_handler mh;
+			mh.proxy = staticDispatchProxy<ComponentT, MessageT, HandlerF>;
+			reinterpret_cast<ComponentT *&>(mh.c) = c;
+			reinterpret_cast<message_handler_memfn_t<ComponentT, MessageT> &>(mh.h) = nullptr;
+			m_handlers[typeid(MessageT)].push_back(mh);
+		}
+
+		void sendMessage(Entity *, Message *);
 	};
 }
