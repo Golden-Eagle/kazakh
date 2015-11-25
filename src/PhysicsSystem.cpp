@@ -605,16 +605,16 @@ void PhysicsSystem::processPhysicsCallback(btScalar timeStep) {
 		{
 			switch (phase) {
 			case 0:
-				entityA->sendMessage(entityB, &cEnter);
-				entityB->sendMessage(entityA, &cEnter);
+				entityA->sendMessage(CollisionEnterMessage(entityB));
+				entityB->sendMessage(CollisionEnterMessage(entityA));
 				break;
 			case 1:
-				entityA->sendMessage(entityB, &cStay);
-				entityB->sendMessage(entityA, &cStay);
+				entityA->sendMessage(CollisionMessage(entityB));
+				entityB->sendMessage(CollisionMessage(entityA));
 				break;
 			case 2: 
-				entityA->sendMessage(entityB, &cExit);
-				entityB->sendMessage(entityA, &cExit);
+				entityA->sendMessage(CollisionExitMessage(entityB));
+				entityB->sendMessage(CollisionExitMessage(entityA));
 				break;
 			default:
 				break;
@@ -624,9 +624,9 @@ void PhysicsSystem::processPhysicsCallback(btScalar timeStep) {
 		case 1: // dynamicA/ghostB collision
 		{
 			switch (phase) {
-			case 0: entityB->sendMessage(entityA, &tEnter); break;
-			case 1: entityB->sendMessage(entityA, &tStay); break;
-			case 2: entityB->sendMessage(entityA, &tExit); break;
+			case 0: entityB->sendMessage(TriggerEnterMessage(entityA)); break;
+			case 1: entityB->sendMessage(TriggerMessage(entityA)); break;
+			case 2: entityB->sendMessage(TriggerExitMessage(entityA)); break;
 			default: break;
 			};
 			break;
@@ -634,9 +634,9 @@ void PhysicsSystem::processPhysicsCallback(btScalar timeStep) {
 		case 2: // ghostA/dynamicB collision
 		{
 			switch (phase) {
-			case 0: entityA->sendMessage(entityB, &tEnter); break;
-			case 1: entityA->sendMessage(entityB, &tStay); break;
-			case 2: entityA->sendMessage(entityB, &tExit); break;
+			case 0: entityA->sendMessage(TriggerEnterMessage(entityB)); break;
+			case 1: entityA->sendMessage(TriggerMessage(entityB)); break;
+			case 2: entityA->sendMessage(TriggerExitMessage(entityB)); break;
 			default: break;
 			};
 		}

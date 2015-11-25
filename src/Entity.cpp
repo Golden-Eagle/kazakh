@@ -85,14 +85,17 @@ const vector<EntityComponent *> & Entity::getAllComponents() const {
 }
 
 
-void Entity::sendMessage(Entity *sender, Message *m) {
-	auto it = m_handlers.find(typeid(*m));
+void Entity::sendMessage(Message &m) {
+	auto it = m_handlers.find(typeid(m));
 	if (it == m_handlers.end()) return;
 	for (message_handler &mh : it->second) {
-		mh.proxy(this, sender, m, &mh);
+		mh.proxy(this, m, &mh);
 	}
 }
 
+void Entity::sendMessage(Message &&m) {
+	sendMessage(m);
+}
 
 
 //

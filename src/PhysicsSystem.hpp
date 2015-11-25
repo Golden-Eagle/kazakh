@@ -186,9 +186,17 @@ namespace pxljm {
 	//
 	// Physics Trigger Callback component
 	//
-	class CollisionEnterMessage : public Message { };
-	class CollisionMessage : public Message { };
-	class CollisionExitMessage : public Message { };
+	class CollisionEnterMessage : public Message {
+		using Message::Message;
+	};
+
+	class CollisionMessage : public Message {
+		using Message::Message;
+	};
+
+	class CollisionExitMessage : public Message {
+		using Message::Message;
+	};
 
 	class CollisionCallback : public virtual EntityComponent {
 	public:
@@ -196,9 +204,9 @@ namespace pxljm {
 		virtual void deregisterWith(Scene &) override;
 		virtual void onAttachToEntity() override;
 		virtual void onDetachFromEntity() override;
-		virtual void onCollisionEnter(Entity *, Entity *, CollisionEnterMessage *) { }
-		virtual void onCollision(Entity *, Entity *, CollisionMessage *) { }
-		virtual void onCollisionExit(Entity *, Entity *, CollisionExitMessage *) { }
+		virtual void onCollisionEnter(Entity *, CollisionEnterMessage &) { }
+		virtual void onCollision(Entity *, CollisionMessage &) { }
+		virtual void onCollisionExit(Entity *, CollisionExitMessage &) { }
 	};
 
 
@@ -206,9 +214,17 @@ namespace pxljm {
 	//
 	// Physics Trigger Callback component
 	//
-	class TriggerEnterMessage : public Message { };
-	class TriggerMessage : public Message { };
-	class TriggerExitMessage : public Message { };
+	class TriggerEnterMessage : public Message {
+		using Message::Message;
+	};
+
+	class TriggerMessage : public Message {
+		using Message::Message;
+	};
+
+	class TriggerExitMessage : public Message {
+		using Message::Message;
+	};
 
 	class TriggerCallback : public virtual EntityComponent {
 	public:
@@ -217,9 +233,9 @@ namespace pxljm {
 		virtual void onAttachToEntity() override;
 		virtual void onDetachFromEntity() override;
 
-		virtual void onTriggerEnter(Entity *, Entity *, TriggerEnterMessage *) { }
-		virtual void onTrigger(Entity *, Entity *, TriggerMessage *) { }
-		virtual void onTriggerExit(Entity *, Entity *, TriggerExitMessage *) { }
+		virtual void onTriggerEnter(Entity *, TriggerEnterMessage &) { }
+		virtual void onTrigger(Entity *, TriggerMessage &) { }
+		virtual void onTriggerExit(Entity *, TriggerExitMessage &) { }
 	};
 
 

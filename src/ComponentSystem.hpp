@@ -43,6 +43,11 @@ namespace pxljm {
 
 	class Message {
 	public:
+		Entity *sender = nullptr;
+
+		Message() { }
+		Message(Entity *sender_) : sender(sender_) { }
+
 		virtual ~Message() { }
 	};
 }

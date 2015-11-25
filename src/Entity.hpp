@@ -79,13 +79,13 @@ namespace pxljm {
 	class Entity : gecom::Uncopyable, public std::enable_shared_from_this<Entity> {
 	public:
 		template <typename ComponentT, typename MessageT>
-		using message_handler_memfn_t = void (ComponentT::*)(Entity *, Entity *, MessageT *);
+		using message_handler_memfn_t = void (ComponentT::*)(Entity *, MessageT &);
 
 	private:
 
 		// inner helper struct
 		struct message_handler {
-			void (*proxy)(Entity *, Entity *, Message *, const message_handler *); // dispatch proxy
+			void (*proxy)(Entity *, Message &, const message_handler *); // dispatch proxy
 			void *c; // component
 			alignas(void *) unsigned char h[16]; // member function pointer
 		};
@@ -103,18 +103,18 @@ namespace pxljm {
 
 		// helper methods
 		template <typename ComponentT, typename MessageT>
-		static void dynamicDispatchProxy(Entity *receiver, Entity *sender, Message *m, const message_handler *mh) {
+		static void dynamicDispatchProxy(Entity *receiver, Message &m, const message_handler *mh) {
 			auto hh = reinterpret_cast<const message_handler_memfn_t<ComponentT, MessageT> &>(mh->h);
 			auto cc = reinterpret_cast<ComponentT *>(mh->c);
-			auto mm = static_cast<MessageT *>(m);
-			(cc->*hh)(receiver, sender, mm);
+			auto &mm = static_cast<MessageT &>(m);
+			(cc->*hh)(receiver, mm);
 		}
 
 		template <typename ComponentT, typename MessageT, message_handler_memfn_t<ComponentT, MessageT> HandlerF>
-		static void staticDispatchProxy(Entity *receiver, Entity *sender, Message *m, const message_handler *mh) {
+		static void staticDispatchProxy(Entity *receiver, Message &m, const message_handler *mh) {
 			auto cc = reinterpret_cast<ComponentT *>(mh->c);
-			auto mm = static_cast<MessageT *>(m);
-			(cc->*HandlerF)(receiver, sender, mm);
+			auto &mm = static_cast<MessageT &>(m);
+			(cc->*HandlerF)(receiver, mm);
 		}
 
 
@@ -185,6 +185,7 @@ namespace pxljm {
 			m_handlers[typeid(MessageT)].push_back(mh);
 		}
 
-		void sendMessage(Entity *, Message *);
+		void sendMessage(Message &);
+		void sendMessage(Message &&);
 	};
 }

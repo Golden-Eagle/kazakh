@@ -86,6 +86,48 @@ namespace pxljm {
 	};
 
 
+	class TestComponent : public CollisionCallback, public TriggerCallback {
+	private:
+		long count = 0;
+
+	public:
+
+		virtual void registerWith(Scene &s) override {
+			CollisionCallback::registerWith(s);
+			TriggerCallback::registerWith(s);
+		}
+
+		virtual void deregisterWith(Scene &s) override {
+			CollisionCallback::deregisterWith(s);
+			TriggerCallback::deregisterWith(s);
+		}
+
+		virtual void onAttachToEntity() override {
+			CollisionCallback::onAttachToEntity();
+			TriggerCallback::onAttachToEntity();
+		}
+
+		virtual void onDetachFromEntity() override {
+			CollisionCallback::onDetachFromEntity();
+			TriggerCallback::onDetachFromEntity();
+		}
+
+		virtual void onCollisionEnter(Entity *, CollisionEnterMessage &) {
+			std::cout << "enter" <<  std::endl;
+		}
+
+		virtual void onCollision(Entity *, CollisionMessage &) {
+			if (count++ < 1 ) std::cout << "stay" << std::endl;
+		}
+
+		virtual void onCollisionExit(Entity *, CollisionExitMessage &) {
+			std::cout << "stayCount " << count << std::endl;
+			std::cout << "exit" << std::endl;
+			count = 0;
+		}
+	};
+
+
 
 
 
@@ -93,6 +135,7 @@ namespace pxljm {
 		Renderer m_renderer;
 		std::shared_ptr<Scene> m_scene;
 		std::shared_ptr<Entity> m_player;
+		std::shared_ptr<Entity> m_cube;
 		std::shared_ptr<Entity> m_ground;
 		std::shared_ptr<Entity> m_camera;
 		PerspectiveCamera *m_cameraComponent;
@@ -123,6 +166,13 @@ namespace pxljm {
 
 
 
+			// Falling cube
+			m_cube = std::make_shared<Entity>("Cube", i3d::vec3d(0.1, 10, 0));
+			m_cube->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(i3d2bt(i3d::vec3d(0.2, 0.2, 0.2))));
+			m_cube->emplaceComponent<TestComponent>();
+			m_scene->add(m_cube);
+
+
 			// Ground plane
 			m_ground = std::make_shared<Entity>("Ground", i3d::vec3d(0, 0, 0));
 			m_ground->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(i3d2bt(i3d::vec3d(100, 0.1, 100))), 0);
@@ -134,7 +184,7 @@ namespace pxljm {
 
 
 			// FPS controller
-			m_camera = std::make_shared<Entity>("FPS Camera", i3d::vec3d(0, 1, 5));
+			m_camera = std::make_shared<Entity>("FPS Camera", i3d::vec3d(0, 2, 8));
 			m_camera->emplaceComponent<FPSController>();
 			m_cameraComponent = m_camera->emplaceComponent<PerspectiveCamera>();
 			m_scene->add(m_camera);
