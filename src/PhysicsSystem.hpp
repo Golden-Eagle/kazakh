@@ -53,7 +53,6 @@ namespace pxljm {
 
 		double m_mass = 1.0;
 		bool m_kinematic = false;
-		bool m_enabled = true;
 
 	public:
 		RigidBody();
@@ -66,11 +65,10 @@ namespace pxljm {
 		virtual void addToDynamicsWorld(btDynamicsWorld *) override;
 		virtual void removeFromDynamicsWorld() override;
 
+		virtual void onEnable(bool) override;
+
 		btRigidBody * getRigidBody();
 
-
-		void setEnable(bool);
-		bool isEnabled();
 
 		void setKinematic(bool);
 		bool isKinematic();
@@ -160,7 +158,6 @@ namespace pxljm {
 		btDynamicsWorld * m_world = nullptr;
 		std::unique_ptr<btGhostObject> m_ghostObject;
 
-		bool m_enabled = true;
 	public:
 		Trigger(collider_ptr);
 
@@ -168,13 +165,12 @@ namespace pxljm {
 		virtual void registerWith(Scene &) override;
 		virtual void deregisterWith(Scene &) override;
 
+		virtual void onEnable(bool) override;
+
 		virtual void addToDynamicsWorld(btDynamicsWorld *) override;
 		virtual void removeFromDynamicsWorld() override;
 
 		virtual void physicsUpdate() override;
-
-		void setEnable(bool);
-		bool isEnabled();
 
 		// Properties
 		void setCollider(collider_ptr);

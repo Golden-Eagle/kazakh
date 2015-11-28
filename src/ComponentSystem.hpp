@@ -28,7 +28,6 @@ namespace pxljm {
 		std::weak_ptr<Entity> m_entity;
 		friend class Entity;
 
-	protected:
 		virtual void onAttachToEntity() { }
 		virtual void onDetachFromEntity() { }
 

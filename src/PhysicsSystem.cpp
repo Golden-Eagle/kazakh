@@ -60,14 +60,14 @@ void RigidBody::start() {
 void RigidBody::addToDynamicsWorld(btDynamicsWorld * world) {
 	removeFromDynamicsWorld();
 	m_world = world;
-	if (m_enabled)
+	if (isEnabled())
 		m_world->addRigidBody(m_rigidBody.get());
 }
 
 
 void RigidBody::removeFromDynamicsWorld() {
 	if (m_world) {
-		if (m_enabled)
+		if (isEnabled())
 			m_world->removeRigidBody(m_rigidBody.get());
 		m_world = nullptr;
 	}
@@ -97,14 +97,12 @@ btRigidBody * RigidBody::getRigidBody() {
 }
 
 
-void RigidBody::setEnable(bool e) {
-	m_enabled = e;
+void RigidBody::onEnable(bool e) {
 	if (m_world) {
 		if (e) m_world->addRigidBody(m_rigidBody.get());
 		else m_world->removeRigidBody(m_rigidBody.get());
 	}
 }
-bool RigidBody::isEnabled() { return m_enabled; }
 
 
 void RigidBody::setKinematic(bool k) {
@@ -250,15 +248,15 @@ void Trigger::deregisterWith(Scene &s) { s.physicsSystem().deregisterTrigger(thi
 void Trigger::addToDynamicsWorld(btDynamicsWorld *world) {
 	removeFromDynamicsWorld();
 	m_world = world;
-	if (m_enabled)
+	if (isEnabled())
 		m_world->addCollisionObject(m_ghostObject.get());
 }
 
 
 void Trigger::removeFromDynamicsWorld() {
 	if (m_world) {
-		if (m_enabled)
-			m_world->addCollisionObject(m_ghostObject.get());
+		if (isEnabled())
+			m_world->removeCollisionObject(m_ghostObject.get());
 		m_world = nullptr;
 	}
 }
@@ -269,13 +267,11 @@ void Trigger::physicsUpdate() {
 }
 
 
-void Trigger::setEnable(bool e) {
-	m_enabled = e;
-}
-
-
-bool Trigger::isEnabled() {
-	return m_enabled;
+void Trigger::onEnable(bool e) {
+	if (m_world) {
+		if (e) m_world->addCollisionObject(m_ghostObject.get());
+		else m_world->removeCollisionObject(m_ghostObject.get());
+	}
 }
 
 
