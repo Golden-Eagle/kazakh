@@ -5,6 +5,14 @@
 
 using namespace pxljm;
 
+void EntityComponent::setEnabled(bool e) {
+	if (e != m_enabled) {
+		m_enabled = e;
+		onEnable(e);
+	}
+}
+
+bool EntityComponent::isEnabled() const { return m_enabled; }
 
 bool EntityComponent::hasEntity() { return bool(m_entity.lock()); }
 
