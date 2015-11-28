@@ -168,14 +168,14 @@ namespace pxljm {
 
 			// Falling cube
 			m_cube = std::make_shared<Entity>("Cube", i3d::vec3d(0.1, 10, 0));
-			m_cube->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(i3d2bt(i3d::vec3d(0.2, 0.2, 0.2))));
+			m_cube->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(i3d::vec3d(0.2, 0.2, 0.2)));
 			m_cube->emplaceComponent<TestComponent>();
 			m_scene->add(m_cube);
 
 
 			// Ground plane
 			m_ground = std::make_shared<Entity>("Ground", i3d::vec3d(0, 0, 0));
-			m_ground->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(i3d2bt(i3d::vec3d(100, 0.1, 100))), 0);
+			m_ground->emplaceComponent<RigidBody>(std::make_shared<BoxCollider>(i3d::vec3d(100, 0.1, 100)), 0);
 			m_ground->emplaceComponent<MeshDrawable>(
 				assets::getMesh("big_plane"),
 				assets::getMaterial("basic"));

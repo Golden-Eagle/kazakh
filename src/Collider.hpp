@@ -4,7 +4,11 @@
 
 #include <btBulletDynamicsCommon.h>
 
+#include "Pxljm.hpp"
+
+#include <gecom/Initial3D.hpp>
 #include <gecom/Uncopyable.hpp>
+
 
 
 namespace pxljm {
@@ -48,7 +52,7 @@ namespace pxljm {
 		btSphereShape m_shape;
 
 	public:
-		SphereCollider(btScalar radius) : m_shape(radius) { }
+		SphereCollider(double radius) : m_shape(radius) { }
 		virtual btCollisionShape * getCollisionShape() { return &m_shape; }
 	};
 
@@ -58,7 +62,7 @@ namespace pxljm {
 		btBoxShape m_shape;
 
 	public:
-		BoxCollider(btVector3 boxHalfExtents) : m_shape(boxHalfExtents) { }
+		BoxCollider(i3d::vec3d boxHalfExtents) : m_shape(i3d2bt(boxHalfExtents)) { }
 		virtual btCollisionShape * getCollisionShape()  { return &m_shape; }
 	};
 
@@ -69,7 +73,7 @@ namespace pxljm {
 		btCylinderShape m_shape;
 
 	public:
-		CylinderCollider(btVector3 halfExtents) : m_shape(halfExtents) { }
+		CylinderCollider(i3d::vec3d boxHalfExtents) : m_shape(i3d2bt(boxHalfExtents)) { }
 		virtual btCollisionShape * getCollisionShape()  { return &m_shape; }
 	};
 
@@ -80,7 +84,7 @@ namespace pxljm {
 		btCapsuleShape m_shape;
 
 	public:
-		CapsuleCollider(btScalar radius, btScalar height) : m_shape(radius, height) { }
+		CapsuleCollider(double radius, double height) : m_shape(radius, height) { }
 		virtual btCollisionShape * getCollisionShape()  { return &m_shape; }
 	};
 
@@ -90,7 +94,7 @@ namespace pxljm {
 		btConeShape m_shape;
 
 	public:
-		ConeCollider(btScalar radius, btScalar height) : m_shape(radius, height) { }
+		ConeCollider(double radius, double height) : m_shape(radius, height) { }
 		virtual btCollisionShape * getCollisionShape()  { return &m_shape; }
 	};
 
