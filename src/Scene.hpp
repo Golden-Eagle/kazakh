@@ -21,6 +21,7 @@
 #include "UpdateSystem.hpp"
 #include "SoundSystem.hpp"
 
+#include "Render.hpp"
 #include "DebugWindow.hpp"
 
 namespace pxljm {
@@ -45,7 +46,8 @@ namespace pxljm {
 		~Scene();
 
 		void update();
-		void add( entity_ptr e);
+		void render(FrameTask *);
+		void add(entity_ptr e);
 
 		CameraSystem & cameraSystem();
 		DrawableSystem & drawableSystem();

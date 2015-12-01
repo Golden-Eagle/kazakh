@@ -13,6 +13,9 @@ void Camera::registerWith(Scene &s) { s.cameraSystem().registerCamera(this); }
 void Camera::deregisterWith(Scene &s) { s.cameraSystem().deregisterCamera(this); }
 
 
+RenderStrategy* Camera::getRenderStrategy() { return &m_renderStrategy; }
+
+
 i3d::mat4d Camera::getViewMatrix(){
 	return !entity()->root()->matrix();
 }

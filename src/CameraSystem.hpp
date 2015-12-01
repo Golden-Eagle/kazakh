@@ -3,61 +3,68 @@
 #include <unordered_set>
 
 #include "ComponentSystem.hpp"
+#include "Render.hpp"
+#include "SceneRender.hpp"
 
 
 namespace pxljm {
 
-	class Projection {
-	public:
-		Projection() : m_projectionTransform(initial3d::mat4d(1)) {}
+	// class Projection {
+	// public:
+	// 	Projection() : m_projectionTransform(initial3d::mat4d(1)) {}
 
-		void setPerspectiveProjection(double fovy, double aspect, double zNear, double zFar) {
-			double f = initial3d::math::cot(fovy / 2);
+	// 	void setPerspectiveProjection(double fovy, double aspect, double zNear, double zFar) {
+	// 		double f = initial3d::math::cot(fovy / 2);
 
-			m_projectionTransform = initial3d::mat4d(0);
-			m_projectionTransform(0, 0) = f / aspect;
-			m_projectionTransform(1, 1) = f;
-			m_projectionTransform(2, 2) = (zFar + zNear) / (zNear - zFar);
-			m_projectionTransform(2, 3) = (2 * zFar * zNear) / (zNear - zFar);
-			m_projectionTransform(3, 2) = -1;
+	// 		m_projectionTransform = initial3d::mat4d(0);
+	// 		m_projectionTransform(0, 0) = f / aspect;
+	// 		m_projectionTransform(1, 1) = f;
+	// 		m_projectionTransform(2, 2) = (zFar + zNear) / (zNear - zFar);
+	// 		m_projectionTransform(2, 3) = (2 * zFar * zNear) / (zNear - zFar);
+	// 		m_projectionTransform(3, 2) = -1;
 
-			m_zfar = zFar;
-		}
+	// 		m_zfar = zFar;
+	// 	}
 
-		void setOrthographicProjection(double left, double right, double bottom, double top, double nearVal, double farVal) {
-			m_projectionTransform = initial3d::mat4d(0);
-			m_projectionTransform(0, 0) = 2 / (right - left);
-			m_projectionTransform(0, 3) = (right + left) / (right - left);
-			m_projectionTransform(1, 1) = 2 / (top - bottom);
-			m_projectionTransform(1, 3) = (top + bottom) / (top - bottom);
-			m_projectionTransform(2, 2) = -2 / (farVal - nearVal);
-			m_projectionTransform(2, 3) = (farVal + nearVal) / (farVal - nearVal);
-			m_projectionTransform(3, 3) = 1;
+	// 	void setOrthographicProjection(double left, double right, double bottom, double top, double nearVal, double farVal) {
+	// 		m_projectionTransform = initial3d::mat4d(0);
+	// 		m_projectionTransform(0, 0) = 2 / (right - left);
+	// 		m_projectionTransform(0, 3) = (right + left) / (right - left);
+	// 		m_projectionTransform(1, 1) = 2 / (top - bottom);
+	// 		m_projectionTransform(1, 3) = (top + bottom) / (top - bottom);
+	// 		m_projectionTransform(2, 2) = -2 / (farVal - nearVal);
+	// 		m_projectionTransform(2, 3) = (farVal + nearVal) / (farVal - nearVal);
+	// 		m_projectionTransform(3, 3) = 1;
 
-			m_zfar = farVal;
-		}
+	// 		m_zfar = farVal;
+	// 	}
 
-		initial3d::mat4d getProjectionTransform() {
-			return m_projectionTransform;
-		}
+	// 	initial3d::mat4d getProjectionTransform() {
+	// 		return m_projectionTransform;
+	// 	}
 
-		double getFarPlane() {
-			return m_zfar;
-		}
+	// 	double getFarPlane() {
+	// 		return m_zfar;
+	// 	}
 
-	private:
-		double m_zfar;
-		initial3d::mat4d m_projectionTransform;
-	};
+	// private:
+	// 	double m_zfar;
+	// 	initial3d::mat4d m_projectionTransform;
+	// };
 
 
 
 	class Camera : public virtual EntityComponent {
+	private:
+		SceneRenderStrategy<DefaultSceneRenderer> m_renderStrategy;
+
 	public:
 		void registerWith(Scene &s);
 		void deregisterWith(Scene &s);
 
 		virtual void update(int, int) = 0; //update with width and height
+
+		virtual RenderStrategy* getRenderStrategy();
 
 		virtual i3d::mat4d getViewMatrix();
 		virtual i3d::mat4d getProjectionMatrix() = 0;
@@ -96,6 +103,8 @@ namespace pxljm {
 
 	class StaticDefaultCamera : public PerspectiveCamera {
 	public:
+		StaticDefaultCamera() { }
+
 		virtual i3d::mat4d getViewMatrix(){
 			return i3d::mat4d();
 			//return i3d::mat4d::translate(0, 0, 5);

@@ -2,16 +2,21 @@
 #include <gecom/Initial3D.hpp>
 #include <gecom/Log.hpp>
 
+#include "SceneRender.hpp"
+#include "CameraSystem.hpp"
 #include "SimpleShader.hpp"
-
-#include "Renderer.hpp"
+#include "Entity.hpp"
+#include "Scene.hpp"
 
 using namespace std;
 using namespace initial3d;
 using namespace gecom;
 
-namespace {
 
+
+
+
+namespace {
 	static const std::string shader_fullscreen_source = R"delim(
 // vertex shader
 #ifdef _VERTEX_
@@ -97,7 +102,31 @@ void main() {
 
 namespace pxljm {
 
-	void Renderer::initFBO(size2i sz) {
+	DefaultSceneRenderer & DefaultSceneRenderer::instance() {
+		// TODO @ben: window-local storage
+		static auto r = make_unique<pxljm::DefaultSceneRenderer>();
+		return *r;
+	}
+
+
+	unique_ptr<DefaultSceneRenderer::task_t> DefaultSceneRenderer::getRenderTask(Camera *c) {
+		auto renderTask = make_unique<task_t>(); // create the render task
+		renderTask->rendererFactory(instance);  // pass in function for creating renderer
+		
+		// TODO scene traversal
+		// add data to task
+		//
+		renderTask->drawQueue = c->entity()->getScene()->drawableSystem().getDrawQueue(c->getViewMatrix());
+
+		renderTask->zfar = c->getZfar();
+		renderTask->viewMatrix = c->getViewMatrix();
+		renderTask->projectionMatrix = c->getProjectionMatrix();
+
+		return renderTask;
+	}
+
+
+	void DefaultSceneRenderer::initFBO(size2i sz) {
 		if (sz == m_fbsize) return;
 		
 		glActiveTexture(GL_TEXTURE0);
@@ -155,32 +184,29 @@ namespace pxljm {
 		m_fbsize = sz;
 	}
 
-	void Renderer::renderScene(Scene &s) {
+	void DefaultSceneRenderer::render(task_t &task) {
 		glClearColor(0.9f, .9f, 0.9f, 1.f); // default background color
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
-		auto size = m_win->framebufferSize();
+		auto size = task.size;
 
 		if (size == size2i(0, 0)) return;
 
 		initFBO(size);
 
-		s.cameraSystem().update(size.w, size.h);
 		glViewport(0, 0, size.w, size.h);
 
 		// draw material properties to scene buffer
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo_scene);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		double zfar = s.cameraSystem().getPrimaryCamera()->getZfar();
-		i3d::mat4d view = s.cameraSystem().getPrimaryCamera()->getViewMatrix();
-		i3d::mat4d proj = s.cameraSystem().getPrimaryCamera()->getProjectionMatrix();
-		std::priority_queue<DrawCall *> drawList = s.drawableSystem().getDrawQueue(view);
 
-		for (; !drawList.empty(); drawList.pop()) {
-			auto d = drawList.top();
+		// draw everything in the draw queue
+		//
+		for (; !task.drawQueue.empty(); task.drawQueue.pop()) {
+			auto d = task.drawQueue.top();
 			// Bind shader program
 			// Bind material properties
 			// Bind Geometry
@@ -188,7 +214,7 @@ namespace pxljm {
 
 			material_ptr m = d->material();
 			m->shader->bind();
-			m->bind(proj, zfar);
+			m->bind(task.projectionMatrix, task.zfar);
 			d->draw();
 		}
 
@@ -219,9 +245,8 @@ namespace pxljm {
 		glBlitFramebuffer(0, 0, size.w, size.h, 0, 0, size.w, size.h, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-		s.physicsSystem().debugDraw(s);
-
+		// glEnable(GL_DEPTH_TEST);
+		// glDepthFunc(GL_LEQUAL);
+		// s.physicsSystem().debugDraw(s);
 	}
 }

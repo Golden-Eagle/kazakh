@@ -124,6 +124,7 @@ namespace pxljm {
 		virtual ~Entity();
 
 		std::string getName();
+		Scene * getScene();
 		EntityTransform * root();
 
 		void registerWith(Scene &);

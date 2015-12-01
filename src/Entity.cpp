@@ -33,6 +33,11 @@ string Entity::getName() {
 }
 
 
+Scene * Entity::getScene() {
+	return m_scene;
+}
+
+
 EntityTransform * Entity::root() {
 	return &m_root;
 }

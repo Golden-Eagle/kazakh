@@ -13,7 +13,7 @@
 
 #include "Assets.hpp"
 #include "Scene.hpp"
-#include "Renderer.hpp"
+#include "Render.hpp"
 #include "SimpleShader.hpp"
 #include "ComponentTest.hpp"
 #include "State.hpp"
@@ -53,7 +53,7 @@ namespace pxljm {
 
 		template <typename FirstStateT>
 		void init() {
-			m_stateManager.init<FirstStateT>(this);
+			m_stateManager.init<FirstStateT>(m_win);
 		}
 
 		gecom::Window* window() const {
@@ -71,10 +71,13 @@ namespace pxljm {
 				double now = glfwGetTime();
 
 				m_stateManager.update();
-				m_stateManager.draw();
+
+				FrameTask ft(m_win);
+				m_stateManager.draw(&ft);
+				ft.execute();
 
 				//debug draw here
-				m_debugManager.draw(m_win->width(), m_win->height(), m_win->width(), m_win->height());
+				// m_debugManager.draw(m_win->width(), m_win->height(), m_win->width(), m_win->height());
 
 				m_win->swapBuffers();
 

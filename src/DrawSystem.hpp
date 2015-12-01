@@ -11,14 +11,14 @@
 namespace pxljm {
 
 	class DrawCall {
+	protected:
+		material_ptr m_mat;
+
 	public:
 		virtual ~DrawCall();
 		virtual void draw() = 0;
 		material_ptr material();
 		bool operator< (const DrawCall& rhs) const;
-
-	protected:
-		material_ptr m_mat;
 	};
 
 	class DrawableComponent : public virtual EntityComponent {
@@ -33,6 +33,9 @@ namespace pxljm {
 
 
 	class DrawableSystem : public ComponentSystem {
+	private:
+		std::unordered_set<DrawableComponent *> m_drawables;
+
 	public:
 		DrawableSystem();
 
@@ -40,8 +43,5 @@ namespace pxljm {
 		void deregisterDrawableComponent(DrawableComponent *);
 
 		std::priority_queue<DrawCall *> getDrawQueue(i3d::mat4d);
-
-	private:
-		std::unordered_set<DrawableComponent *> m_drawables;
 	};
 }

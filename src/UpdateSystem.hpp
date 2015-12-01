@@ -52,8 +52,8 @@ namespace pxljm {
 		};
 
 		std::priority_queue<update_data, std::vector<update_data>, update_data_compare> m_update_queue;
-
 	};
+
 
 	//
 	// Update component
@@ -85,5 +85,4 @@ namespace pxljm {
 
 		virtual void inputUpdate(gecom::WindowEventProxy &) = 0;
 	};
-
 }

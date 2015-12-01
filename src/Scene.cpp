@@ -38,6 +38,15 @@ void Scene::update() {
 }
 
 
+void Scene::render(FrameTask *ft) {
+	m_cameraSystem.update(ft->window->size().w, ft->window->size().h);
+	Camera *c = m_cameraSystem.getPrimaryCamera();
+	ft->tasks.push_back(c->getRenderStrategy()->getRenderTask(c));
+}
+
+
+
+
 
 void Scene::add( entity_ptr e){
 	e->registerWith(*this);

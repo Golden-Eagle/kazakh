@@ -4,6 +4,9 @@
 
 #include "Pxljm.hpp"
 #include "Game.hpp"
+#include "State.hpp"
+#include "Render.hpp"
+
 #include <gecom/Window.hpp>
 
 namespace pxljm {
@@ -145,12 +148,12 @@ namespace pxljm {
 
 
 	public:
-		PlayState(Game* game) : m_renderer(game->window()), m_game(game) {
+		PlayState(gecom::Window *w) {
 			m_scene = std::make_shared<Scene>();
 
 
 			//manually subscribe windw event proxy to window
-			m_window_scene_sub = game->window()->subscribeEventDispatcher(m_scene->updateSystem().eventProxy());
+			m_window_scene_sub = w->subscribeEventDispatcher(m_scene->updateSystem().eventProxy());
 
 
 			// The ASTEROID!!!!!!!!!
@@ -200,8 +203,8 @@ namespace pxljm {
 			return nullAction();
 		}
 
-		virtual void drawForeground() override {
-			m_renderer.renderScene(*m_scene);
+		virtual void drawForeground(FrameTask *ft) override {
+			m_scene->render(ft);
 		}
 	};
 }

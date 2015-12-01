@@ -9,7 +9,8 @@ set(headers
 
 	"Game.hpp"
 	"DebugWindow.hpp"
-	"Renderer.hpp"
+	"Render.hpp"
+	"SceneRender.hpp"
 	"ComponentTest.hpp"
 	"Collider.hpp"
 	"SimpleShader.hpp"
@@ -41,7 +42,8 @@ set(headers
 set(sources
 	"main.cpp"
 	"DebugWindow.cpp"
-	"Renderer.cpp"
+	"Render.cpp"
+	"SceneRender.cpp"
 	
 	"Assets.cpp"
 	"Material.cpp"

@@ -18,6 +18,8 @@
 #include <exception>
 #include <stdexcept>
 
+#include "Render.hpp"
+
 #include <gecom/Log.hpp>
 
 namespace pxljm {
@@ -131,9 +133,9 @@ namespace pxljm {
 	
 		virtual inline void updateBackground() { }
 		
-		virtual inline void drawForeground() { }
+		virtual inline void drawForeground(FrameTask *ft) { }
 
-		virtual inline void drawBackground() { }
+		virtual inline void drawBackground(FrameTask *ft) { }
 		
 		// will this state completely obscure anything drawn underneath it?
 		virtual inline bool opaque() {
@@ -282,7 +284,11 @@ namespace pxljm {
 		};
 	
 		class DrawAction : public Action {
+		private:
+			FrameTask *m_ft;
 		public:
+			DrawAction(FrameTask *ft) : m_ft(ft) { }
+
 			virtual inline std::unique_ptr<Action> execute(StateManager &sm) override {
 				if (sm.m_states.empty()) return make_unique<NullAction>();
 				
@@ -296,7 +302,7 @@ namespace pxljm {
 					
 					// draw from topmost opaque state upwards, but only background states
 					for (; it < sm.m_states.end() - 1; ++it) {
-						(*it)->drawBackground();
+						(*it)->drawBackground(m_ft);
 					}
 					
 				} catch (...) {
@@ -317,7 +323,7 @@ namespace pxljm {
 				}
 
 				// draw foreground state
-				sm.m_states.back()->drawForeground();
+				sm.m_states.back()->drawForeground(m_ft);
 				
 				return make_unique<NullAction>();
 			}
@@ -400,9 +406,9 @@ namespace pxljm {
 		}
 
 		// run one draw iteration
-		void draw() {
+		void draw(FrameTask *ft) {
 			if (done()) return;
-			performAction(make_unique<DrawAction>());
+			performAction(make_unique<DrawAction>(ft));
 		}
 
 	};
