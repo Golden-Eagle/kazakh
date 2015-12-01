@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <gecom/Window.hpp>
+#include <gecom/Log.hpp>
 #include <gecom/Initial3D.hpp>
 
 namespace pxljm {

@@ -122,6 +122,9 @@ namespace pxljm {
 		renderTask->viewMatrix = c->getViewMatrix();
 		renderTask->projectionMatrix = c->getProjectionMatrix();
 
+		//TODO UNHACK
+		renderTask->size = c->size;
+
 		return renderTask;
 	}
 
@@ -182,10 +185,12 @@ namespace pxljm {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, sz.w, sz.h, 0, GL_RGBA, GL_FLOAT, nullptr);
 
 		m_fbsize = sz;
+
+		Log::info() << "RECREATE MOTHER FUCKER";
 	}
 
 	void DefaultSceneRenderer::render(task_t &task) {
-		glClearColor(0.9f, .9f, 0.9f, 1.f); // default background color
+		glClearColor(0.9f, 0.9f, 0.9f, 1.f); // default background color
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);

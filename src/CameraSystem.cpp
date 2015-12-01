@@ -31,6 +31,9 @@ void PerspectiveCamera::update(int w, int h) {
 	m_proj(2, 2) = (m_zFar + m_zNear) / (m_zNear - m_zFar);
 	m_proj(2, 3) = (2 * m_zFar * m_zNear) / (m_zNear - m_zFar);
 	m_proj(3, 2) = -1;
+
+	//TODO UNHACK
+	size = gecom::size2i(w, h);
 }
 
 i3d::mat4d PerspectiveCamera::getProjectionMatrix() { return m_proj; }

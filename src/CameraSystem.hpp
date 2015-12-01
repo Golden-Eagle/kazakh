@@ -6,6 +6,8 @@
 #include "Render.hpp"
 #include "SceneRender.hpp"
 
+#include <gecom/Window.hpp>
+
 
 namespace pxljm {
 
@@ -59,6 +61,9 @@ namespace pxljm {
 		SceneRenderStrategy<DefaultSceneRenderer> m_renderStrategy;
 
 	public:
+		//TODO UNHACK
+		gecom::size2i size;
+
 		void registerWith(Scene &s);
 		void deregisterWith(Scene &s);
 
